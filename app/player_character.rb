@@ -6,6 +6,11 @@ class PlayerCharacter < GameObject
     @angle = 0
   end
 
+  def set_position(col, row)
+    @x = col * TILE_SIZE + 2
+    @y = row * TILE_SIZE + 2
+  end
+
   def update(scene)
     forces = Vector.new
     if KB.key_down?(:left_arrow)
@@ -21,7 +26,7 @@ class PlayerCharacter < GameObject
       forces.y = 1
       @angle = 180
     end
-    move(forces, scene.obstacles, RAMPS, set_speed: true)
+    move(forces, scene.obstacles_for(self), RAMPS, set_speed: true)
   end
 
   def draw

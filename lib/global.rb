@@ -1,6 +1,6 @@
-SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 720
-SCREEN_RATIO = SCREEN_WIDTH / SCREEN_HEIGHT
+WINDOW_WIDTH = 1280
+WINDOW_HEIGHT = 720
+WINDOW_RATIO = WINDOW_WIDTH / WINDOW_HEIGHT
 
 def hex_to_rgb(color)
   [color >> 16, (color >> 8) & 0xff, color & 0xff]
@@ -90,7 +90,7 @@ class G
                   :ramp_slip_threshold, :ramp_slip_force, :kb_held_delay,
                   :kb_held_interval, :double_click_delay
 
-    def initialize(window_width: 1280, window_height: 720, fullscreen: true,
+    def initialize(screen_width: 1280, screen_height: 720, fullscreen: true,
                    gravity: Vector.new(0, 1), min_speed: Vector.new(0.01, 0.01),
                    ramp_contact_threshold: 4, ramp_slip_threshold: 1, ramp_slip_force: 1,
                    kb_held_delay: 30, kb_held_interval: 3, double_click_delay: 8)
@@ -103,7 +103,7 @@ class G
       @kb_held_interval = kb_held_interval
       @double_click_delay = double_click_delay
 
-      Window.set_size(window_width, window_height)
+      Window.set_screen_size(screen_width, screen_height)
       Window.toggle_fullscreen if fullscreen
       Mouse.initialize
       KB.initialize
@@ -117,12 +117,12 @@ class Window
   class << self
     attr_reader :width, :height, :true_width, :true_height, :offset_x, :offset_y
 
-    def set_size(width, height)
+    def set_screen_size(width, height)
       @width = width
       @height = height
       @layers = {}
 
-      if width == SCREEN_WIDTH && height == SCREEN_HEIGHT
+      if width == WINDOW_WIDTH && height == WINDOW_HEIGHT
         @zoom_factor = 1.0
         @true_width = width
         @true_height = height
@@ -132,17 +132,17 @@ class Window
       end
 
       @use_render_target = true
-      if width / height >= SCREEN_RATIO
-        @zoom_factor = SCREEN_WIDTH / width
-        @true_width = SCREEN_WIDTH
+      if width / height >= WINDOW_RATIO
+        @zoom_factor = WINDOW_WIDTH / width
+        @true_width = WINDOW_WIDTH
         @true_height = height * @zoom_factor
         @offset_x = 0
-        @offset_y = ((SCREEN_HEIGHT - @true_height) / 2).round
+        @offset_y = ((WINDOW_HEIGHT - @true_height) / 2).round
       else
-        @zoom_factor = SCREEN_HEIGHT / height
+        @zoom_factor = WINDOW_HEIGHT / height
         @true_width = width * @zoom_factor
-        @true_height = SCREEN_HEIGHT
-        @offset_x = ((SCREEN_WIDTH - @true_width) / 2).round
+        @true_height = WINDOW_HEIGHT
+        @offset_x = ((WINDOW_WIDTH - @true_width) / 2).round
         @offset_y = 0
       end
     end
@@ -168,7 +168,7 @@ class Window
       output = use_render_target ? $args.outputs[RENDER_TARGET_ID] : $args.outputs
       if use_render_target
         output.transient!
-        $args.outputs.solids << [0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0]
+        $args.outputs.solids << [0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0]
       end
 
       @layers.keys.sort.each do |key|
@@ -179,7 +179,7 @@ class Window
       $args.outputs.sprites << {
         path: RENDER_TARGET_ID,
         x: @offset_x,
-        y: SCREEN_HEIGHT - @offset_y - @true_height,
+        y: WINDOW_HEIGHT - @offset_y - @true_height,
         w: @true_width,
         h: @true_height,
         source_w: width,

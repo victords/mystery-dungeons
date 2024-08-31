@@ -1,9 +1,10 @@
 require 'lib/minigl'
+require 'app/constants'
 require 'app/game'
 
 def tick(args)
   if args.tick_count.zero?
-    G.initialize(window_width: 320, window_height: 180, fullscreen: false)
+    G.initialize(screen_width: SCREEN_WIDTH, screen_height: SCREEN_HEIGHT, fullscreen: false)
     Game.init
   end
 
