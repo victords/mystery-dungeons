@@ -124,12 +124,14 @@ class GameObject < Sprite
     y = @y + (flip == :vert ? -1 : 1) * @img_gap.y * img_gap_scale_y
     x += @w - width if flip == :horiz
     y += @h - height if flip == :vert
+    center_x = @x + @w * 0.5
+    center_y = @y + @h * 0.5
     if round
       x = x.round
       y = y.round
+      center_x = center_x.round
+      center_y = center_y.round
     end
-    center_x = x + @w * 0.5
-    center_y = y + @h * 0.5
     offset_x = center_x - x
     offset_y = center_y - y
     source_x = (@img_index % @cols) * @col_width

@@ -2,7 +2,7 @@ class PlayerCharacter < GameObject
   RAMPS = [].freeze
 
   def initialize
-    super(0, 0, 8, 8, :char)
+    super(0, 0, 6, 6, :char, img_gap: Vector.new(-1, -1))
     @angle = 0
   end
 
