@@ -1,0 +1,6 @@
+devid=victords
+devtitle=Victor David Santos
+gameid=mystery-dungeons
+gametitle=Mystery Dungeons
+version=0.1
+icon=metadata/icon.png
