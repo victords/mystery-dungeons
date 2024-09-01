@@ -11,6 +11,7 @@ class Game
     end
 
     def update
+      @scene.update
       @player.update(@scene)
     end
 

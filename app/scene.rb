@@ -54,6 +54,25 @@ class Scene
     obstacles
   end
 
+  def add_light(obj, radius)
+    col = ((obj.x + obj.w * 0.5) / TILE_SIZE).floor
+    row = ((obj.y + obj.h * 0.5) / TILE_SIZE).floor
+    min_col = [col - radius, 0].max
+    max_col = [col + radius, TILES_X - 1].min
+    min_row = [row - radius, 0].max
+    max_row = [row + radius, TILES_Y - 1].min
+    (min_col..max_col).each do |i|
+      (min_row..max_row).each do |j|
+        distance = Math.sqrt((i - col)**2 + (j - row)**2)
+        @light[i][j] -= (255 * (1 - 0.5 * (distance - 1) / (radius - 1))).round
+      end
+    end
+  end
+
+  def update
+    @light = Array.new(TILES_X) { Array.new(TILES_Y) { 255 } }
+  end
+
   def draw
     (0..TILES_X).each do |i|
       (0..TILES_Y).each do |j|
@@ -64,9 +83,11 @@ class Scene
         if tl && tr && bl && br
           Window.draw_rect((i - 0.5) * TILE_SIZE, (j - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0xff000000, 1)
         end
-
         next if i == TILES_X || j == TILES_Y
+
+        Window.draw_rect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, @light[i][j] << 24, 2) if @light[i][j] > 0
         next unless wall?(i, j)
+
         @tileset[@tiles[i][j]].draw(i * TILE_SIZE, j * TILE_SIZE)
       end
     end

@@ -27,6 +27,7 @@ class PlayerCharacter < GameObject
       @angle = 180
     end
     move(forces, scene.obstacles_for(self), RAMPS, set_speed: true)
+    scene.add_light(self, 3)
   end
 
   def draw
