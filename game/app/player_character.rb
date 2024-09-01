@@ -1,6 +1,8 @@
 class PlayerCharacter < GameObject
   RAMPS = [].freeze
 
+  attr_writer :on_exit
+
   def initialize
     super(0, 0, 6, 6, :char, img_gap: Vector.new(-1, -1))
     @angle = 0
@@ -28,6 +30,9 @@ class PlayerCharacter < GameObject
     end
     move(forces, scene.obstacles_for(self), RAMPS, set_speed: true)
     scene.add_light(self, 3)
+    
+    exit_obj = scene.exits.find { |e| bounds.intersect?(e) }
+    @on_exit&.call(exit_obj) if exit_obj
   end
 
   def draw

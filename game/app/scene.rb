@@ -1,5 +1,18 @@
+class Exit
+  attr_reader :x, :y, :w, :h, :dest_scene, :dest_entrance
+  
+  def initialize(col, row, dest_scene, dest_entrance)
+    @x = col * TILE_SIZE + 2
+    @y = row * TILE_SIZE + 2
+    @w = TILE_SIZE - 4
+    @h = TILE_SIZE - 4
+    @dest_scene = dest_scene
+    @dest_entrance = dest_entrance
+  end
+end
+
 class Scene
-  attr_reader :entrances
+  attr_reader :entrances, :exits
 
   def initialize(id)
     @tiles = Array.new(TILES_X) { Array.new(TILES_Y) }
@@ -11,6 +24,7 @@ class Scene
         next
       end
       if j == 1
+        @exits = line.split("|").map { |s| Exit.new(*s.split(",").map(&:to_i)) }
         next
       end
 
