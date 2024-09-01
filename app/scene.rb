@@ -2,7 +2,7 @@ class Scene
   attr_reader :entrances
 
   def initialize(id)
-    @obstacles = Array.new(TILES_X) { Array.new(TILES_Y) }
+    @tiles = Array.new(TILES_X) { Array.new(TILES_Y) }
 
     content = $gtk.read_file("data/scene/#{id}.txt")
     content.each_line.with_index do |line, j|
@@ -14,12 +14,26 @@ class Scene
         next
       end
 
-      line.chomp.each_char.with_index do |char, i|
+      row = j - 2
+      line.chomp.each_char.with_index do |char, col|
         next if char == ' '
-        @obstacles[i][j - 2] = Block.new(i * TILE_SIZE, (j - 2) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+
+        @tiles[col][row] = char == '/' ? -1 : 0
       end
     end
-    @flat_obstacles = @obstacles.flatten.compact
+
+    (0...TILES_X).each do |i|
+      (0...TILES_Y).each do |j|
+        next unless wall?(i, j)
+
+        up = j == 0 || wall?(i, j - 1) ? 1 : 0
+        rt = i == TILES_X - 1 || wall?(i + 1, j) ? 2 : 0
+        dn = j == TILES_Y - 1 || wall?(i, j + 1) ? 4 : 0
+        lf = i == 0 || wall?(i - 1, j) ? 8 : 0
+        @tiles[i][j] = up + rt + dn + lf
+      end
+    end
+    @tileset = Tileset.new(:walls, 4, 4)
   end
 
   def obstacles_for(obj)
@@ -29,12 +43,38 @@ class Scene
     max_col = [col + 2, TILES_X - 1].min
     min_row = [row - 2, 0].max
     max_row = [row + 2, TILES_Y - 1].min
-    @obstacles[min_col..max_col].flat_map { |col| col[min_row..max_row] }.compact
+
+    obstacles = []
+    (min_col..max_col).each do |i|
+      (min_row..max_row).each do |j|
+        next unless wall?(i, j)
+        obstacles << Block.new(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+      end
+    end
+    obstacles
   end
 
   def draw
-    @flat_obstacles.each do |obst|
-      Window.draw_rect(obst.x, obst.y, obst.w, obst.h, 0xffffffff)
+    (0..TILES_X).each do |i|
+      (0..TILES_Y).each do |j|
+        tl = i == 0 || j == 0 || @tiles[i - 1][j - 1]
+        tr = i == TILES_X || j == 0 || @tiles[i][j - 1]
+        bl = i == 0 || j == TILES_Y || @tiles[i - 1][j]
+        br = i == TILES_X || j == TILES_Y || @tiles[i][j]
+        if tl && tr && bl && br
+          Window.draw_rect((i - 0.5) * TILE_SIZE, (j - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0xff000000, 1)
+        end
+
+        next if i == TILES_X || j == TILES_Y
+        next unless wall?(i, j)
+        @tileset[@tiles[i][j]].draw(i * TILE_SIZE, j * TILE_SIZE)
+      end
     end
+  end
+
+  private
+
+  def wall?(i, j)
+    @tiles[i][j] && @tiles[i][j] >= 0
   end
 end
