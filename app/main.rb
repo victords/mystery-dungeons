@@ -3,6 +3,7 @@ require 'app/constants'
 require 'app/game'
 
 def tick(args)
+  start = Time.now
   if args.tick_count.zero?
     G.initialize(screen_width: SCREEN_WIDTH, screen_height: SCREEN_HEIGHT, fullscreen: false)
     Game.init
@@ -19,4 +20,6 @@ def tick(args)
   Window.begin_draw(0xff000000)
   Game.draw
   Window.end_draw
+  diff = Time.now - start
+  puts diff if diff > 0.01
 end

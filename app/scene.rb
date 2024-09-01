@@ -16,7 +16,7 @@ class Scene
 
       row = j - 2
       line.chomp.each_char.with_index do |char, col|
-        next if char == ' '
+        next if char == '_'
 
         @tiles[col][row] = char == '/' ? -1 : 0
       end
