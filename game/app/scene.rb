@@ -1,6 +1,8 @@
+require 'app/object/index'
+
 class Exit
   attr_reader :x, :y, :w, :h, :dest_scene, :dest_entrance
-  
+
   def initialize(col, row, dest_scene, dest_entrance)
     @x = col * TILE_SIZE + 2
     @y = row * TILE_SIZE + 2
@@ -16,6 +18,7 @@ class Scene
 
   def initialize(id)
     @tiles = Array.new(TILES_X) { Array.new(TILES_Y) }
+    @objects = []
 
     content = $gtk.read_file("data/scene/#{id}.txt")
     content.each_line.with_index do |line, j|
@@ -27,8 +30,16 @@ class Scene
         @exits = line.split("|").map { |s| Exit.new(*s.split(",").map(&:to_i)) }
         next
       end
+      if j == 2
+        next if line.chomp.empty?
 
-      row = j - 2
+        obj_data = line.chomp.split("|").map { |s| s.split(",") }
+        obj_data.each do |data|
+          @objects << Object.const_get(data[0]).new(data[1].to_i, data[2].to_i, data[3..])
+        end
+      end
+
+      row = j - 3
       line.chomp.each_char.with_index do |char, col|
         next if char == '_'
 
@@ -85,6 +96,7 @@ class Scene
 
   def update
     @light = Array.new(TILES_X) { Array.new(TILES_Y) { 255 } }
+    @objects.each { |o| o.update(self) }
   end
 
   def draw
@@ -105,6 +117,8 @@ class Scene
         @tileset[@tiles[i][j]].draw(i * TILE_SIZE, j * TILE_SIZE)
       end
     end
+
+    @objects.each(&:draw)
   end
 
   private
