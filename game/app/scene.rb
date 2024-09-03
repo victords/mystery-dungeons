@@ -107,14 +107,14 @@ class Scene
         bl = i == 0 || j == TILES_Y || @tiles[i - 1][j]
         br = i == TILES_X || j == TILES_Y || @tiles[i][j]
         if tl && tr && bl && br
-          Window.draw_rect((i - 0.5) * TILE_SIZE, (j - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0xff000000, 1)
+          Window.draw_rect((i - 0.5) * TILE_SIZE, (j - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0xff000000, -1)
         end
         next if i == TILES_X || j == TILES_Y
 
-        Window.draw_rect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, @light[i][j] << 24, 2) if @light[i][j] > 0
+        Window.draw_rect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, @light[i][j] << 24, 1) if @light[i][j] > 0
         next unless wall?(i, j)
 
-        @tileset[@tiles[i][j]].draw(i * TILE_SIZE, j * TILE_SIZE)
+        @tileset[@tiles[i][j]].draw(i * TILE_SIZE, j * TILE_SIZE, z_index: -2)
       end
     end
 

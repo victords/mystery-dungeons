@@ -188,7 +188,7 @@ class Window
     end
 
     def clear(color)
-      draw_rect(0, 0, width, height, (255 << 24) | color)
+      draw_rect(0, 0, width, height, (255 << 24) | color, -100_000_000)
     end
 
     def draw_rect(x, y, w, h, color, z_index = 0)
