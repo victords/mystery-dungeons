@@ -37,6 +37,7 @@ class Scene
         obj_data.each do |data|
           @objects << Object.const_get(data[0]).new(data[1].to_i, data[2].to_i, data[3..])
         end
+        next
       end
 
       row = j - 3
