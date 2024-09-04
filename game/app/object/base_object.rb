@@ -4,4 +4,6 @@ class BaseObject < GameObject
   def solid?; false; end
 
   def trigger?; false; end
+
+  def triggered_by_id; nil; end
 end

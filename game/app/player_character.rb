@@ -30,9 +30,17 @@ class PlayerCharacter < GameObject
     end
     move(forces, scene.obstacles_for(self), RAMPS, set_speed: true)
     scene.add_light(self, 3)
-    
+
     exit_obj = scene.exits.find { |e| bounds.intersect?(e) }
-    @on_exit&.call(exit_obj) if exit_obj
+    if exit_obj
+      @on_exit&.call(exit_obj)
+      return
+    end
+
+    scene.triggers.each do |trigger|
+      next if trigger.active?
+      scene.on_trigger(trigger) if trigger.bounds.intersect?(bounds)
+    end
   end
 
   def draw

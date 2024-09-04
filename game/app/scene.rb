@@ -14,11 +14,14 @@ class Exit
 end
 
 class Scene
-  attr_reader :entrances, :exits
+  attr_reader :entrances, :exits, :triggers
 
   def initialize(id)
     @tiles = Array.new(TILES_X) { Array.new(TILES_Y) }
     @objects = []
+    @solids = []
+    @triggers = []
+    @triggered_by = {}
 
     content = $gtk.read_file("data/scene/#{id}.txt")
     content.each_line.with_index do |line, j|
@@ -35,7 +38,13 @@ class Scene
 
         obj_data = line.chomp.split("|").map { |s| s.split(",") }
         obj_data.each do |data|
-          @objects << Object.const_get(data[0]).new(data[1].to_i, data[2].to_i, data[3..])
+          @objects << (obj = Object.const_get(data[0]).new(data[1].to_i, data[2].to_i, data[3..]))
+          @triggers << obj if obj.trigger?
+          @solids << obj if obj.solid?
+          if obj.triggered_by_id
+            @triggered_by[obj.triggered_by_id] ||= []
+            @triggered_by[obj.triggered_by_id] << obj
+          end
         end
         next
       end
@@ -77,7 +86,7 @@ class Scene
         obstacles << Block.new(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE)
       end
     end
-    obstacles
+    obstacles + @solids.select(&:solid?)
   end
 
   def add_light(obj, radius)
@@ -93,6 +102,13 @@ class Scene
         @light[i][j] -= (255 * (1 - 0.5 * (distance - 1) / (radius - 1))).round
       end
     end
+  end
+
+  def on_trigger(trigger)
+    return if trigger.active?
+
+    trigger.activate
+    @triggered_by[trigger.id]&.each(&:on_trigger)
   end
 
   def update
