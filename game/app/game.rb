@@ -1,5 +1,5 @@
-require 'app/player_character'
-require 'app/scene'
+require_relative 'player_character'
+require_relative 'scene'
 
 class Game
   class << self
@@ -29,7 +29,7 @@ class Game
 
     def draw
       return if @transitioning
-      
+
       @scene.draw
       @player.draw
     end

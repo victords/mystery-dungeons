@@ -1,4 +1,4 @@
-require 'app/object/index'
+require_relative 'object/index'
 
 class Exit
   attr_reader :x, :y, :w, :h, :dest_scene, :dest_entrance

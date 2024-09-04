@@ -1,6 +1,6 @@
 require 'lib/minigl'
-require 'app/constants'
-require 'app/game'
+require_relative 'constants'
+require_relative 'game'
 
 def tick(args)
   start = Time.now

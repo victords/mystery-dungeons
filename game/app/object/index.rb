@@ -1,2 +1,4 @@
-require 'app/object/graphic'
-require 'app/object/lantern'
+require_relative 'base_object'
+
+require_relative 'graphic'
+require_relative 'lantern'
