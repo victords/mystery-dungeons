@@ -3,7 +3,7 @@ require_relative 'constants'
 require_relative 'game'
 require_relative 'editor'
 
-$editor = false
+$editor = true
 
 def tick(args)
   start = Time.now

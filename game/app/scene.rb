@@ -59,13 +59,7 @@ class Scene
 
     (0...TILES_X).each do |i|
       (0...TILES_Y).each do |j|
-        next unless wall?(i, j)
-
-        up = j == 0 || wall?(i, j - 1) ? 1 : 0
-        rt = i == TILES_X - 1 || wall?(i + 1, j) ? 2 : 0
-        dn = j == TILES_Y - 1 || wall?(i, j + 1) ? 4 : 0
-        lf = i == 0 || wall?(i - 1, j) ? 8 : 0
-        @tiles[i][j] = up + rt + dn + lf
+        set_wall_tile(i, j)
       end
     end
     @tileset = Tileset.new(:walls, 4, 4)
@@ -142,5 +136,15 @@ class Scene
 
   def wall?(i, j)
     @tiles[i][j] && @tiles[i][j] >= 0
+  end
+
+  def set_wall_tile(i, j)
+    return unless wall?(i, j)
+
+    up = j == 0 || wall?(i, j - 1) ? 1 : 0
+    rt = i == TILES_X - 1 || wall?(i + 1, j) ? 2 : 0
+    dn = j == TILES_Y - 1 || wall?(i, j + 1) ? 4 : 0
+    lf = i == 0 || wall?(i - 1, j) ? 8 : 0
+    @tiles[i][j] = up + rt + dn + lf
   end
 end
