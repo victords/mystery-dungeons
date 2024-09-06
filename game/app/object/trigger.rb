@@ -1,9 +1,9 @@
 class Trigger < BaseObject
   attr_reader :id
 
-  def initialize(args, x, y, w, h, img, cols = 1, rows = 1, img_gap: Vector.new)
+  def initialize(col, row, args, *rest)
     @id = args[0]
-    super(x, y, w, h, img, cols, rows, img_gap: img_gap)
+    super(col, row, *rest)
   end
 
   def trigger?; true; end

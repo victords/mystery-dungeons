@@ -1,9 +1,11 @@
 require_relative 'object/index'
 
 class Exit
-  attr_reader :x, :y, :w, :h, :dest_scene, :dest_entrance
+  attr_reader :col, :row, :x, :y, :w, :h, :dest_scene, :dest_entrance
 
   def initialize(col, row, dest_scene, dest_entrance)
+    @col = col
+    @row = row
     @x = col * TILE_SIZE + 2
     @y = row * TILE_SIZE + 2
     @w = TILE_SIZE - 4

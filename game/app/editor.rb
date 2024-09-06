@@ -34,9 +34,12 @@ class EditorScene < Scene
     (0...TILES_X).each do |i|
       (0...TILES_Y).each do |j|
         Window.draw_rect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0x50ffff00, render_target_id: RENDER_TARGET_ID) if wall?(i, j)
-        Window.draw_rect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0x50ff0000, render_target_id: RENDER_TARGET_ID) if @tiles[i][j] == -1
+        Window.draw_rect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0x5000ff00, render_target_id: RENDER_TARGET_ID) if @tiles[i][j] == -1
       end
     end
+
+    @entrances.each { |(i, j)| Window.draw_rect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0xff0000ff, render_target_id: RENDER_TARGET_ID) }
+    @exits.each { |x| Window.draw_rect(x.col * TILE_SIZE, x.row * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0xffff0000, render_target_id: RENDER_TARGET_ID) }
 
     @objects.each { |o| o.draw(render_target_id: RENDER_TARGET_ID) }
 
@@ -68,6 +71,26 @@ class EditorScene < Scene
     set_wall_tile(col, row + 1) if row < TILES_Y - 1
     set_wall_tile(col - 1, row) if col > 0
   end
+
+  def add_entrance(col, row)
+    return if @tiles[col][row]
+    return if @entrances.find { |(i, j)| i == col && j == row }
+    return if @exits.find { |x| x.col == col && x.row == row }
+
+    @entrances << [col, row]
+  end
+
+  def delete_at(col, row)
+    if @tiles[col][row]
+      @tiles[col][row] = nil
+      check_wall_tiles(col, row)
+      return
+    end
+
+    @entrances.reject! { |(i, j)| i == col && j == row }
+    @exits.reject! { |x| x.col == col && x.row == row }
+    @objects.reject! { |x| x.col == col && x.row == row }
+  end
 end
 
 class Editor
@@ -80,26 +103,28 @@ class Editor
       @buttons = [
         Button.new(10, 10, w: 40, h: 40, anchor: :top_right, font: font, text: '#') { @active_tool = :wall },
         Button.new(10, 60, w: 40, h: 40, anchor: :top_right, font: font, text: '/') { @active_tool = :wall_edge },
-        Button.new(10, 160, w: 40, h: 40, anchor: :top_right, font: font, text: 'e') { @active_tool = :entrance },
+        Button.new(10, 110, w: 40, h: 40, anchor: :top_right, font: font, text: 'e') { @active_tool = :entrance },
         Button.new(10, 160, w: 40, h: 40, anchor: :top_right, font: font, text: 'x') { @active_tool = :exit },
       ]
     end
 
     def update
       @buttons.each(&:update)
-
-      return if @active_tool.nil?
       return unless Mouse.over?(0, 0, EditorScene::DISPLAY_WIDTH, EditorScene::DISPLAY_HEIGHT)
 
+      col = (Mouse.x / (TILE_SIZE * SCENE_SCALE)).floor
+      row = (Mouse.y / (TILE_SIZE * SCENE_SCALE)).floor
       if Mouse.button_down?(:left)
-        col = (Mouse.x / (TILE_SIZE * SCENE_SCALE)).floor
-        row = (Mouse.y / (TILE_SIZE * SCENE_SCALE)).floor
         case @active_tool
         when :wall
           @scene.add_wall(col, row)
         when :wall_edge
           @scene.add_wall_edge(col, row)
+        when :entrance
+          @scene.add_entrance(col, row)
         end
+      elsif Mouse.button_down?(:right)
+        @scene.delete_at(col, row)
       end
     end
 
