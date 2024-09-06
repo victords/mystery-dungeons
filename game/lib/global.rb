@@ -160,8 +160,13 @@ class Window
       clear(color) if color
     end
 
-    def output(z_index = 0)
+    def output(z_index = 0, render_target_id = nil)
+      return $args.outputs[render_target_id].primitives if render_target_id
       @layers[z_index] ||= []
+    end
+
+    def target_height(render_target_id)
+      render_target_id ? $args.outputs[render_target_id].h : height
     end
 
     def end_draw
@@ -191,12 +196,12 @@ class Window
       draw_rect(0, 0, width, height, (255 << 24) | color, -100_000_000)
     end
 
-    def draw_rect(x, y, w, h, color, z_index = 0)
+    def draw_rect(x, y, w, h, color, z_index = 0, render_target_id: nil)
       a, r, g, b = hex_to_argb(color)
-      output(z_index) << {
+      output(z_index, render_target_id) << {
         path: :pixel,
         x: x,
-        y: Window.height - y - h,
+        y: target_height(render_target_id) - y - h,
         w: w,
         h: h,
         r: r,

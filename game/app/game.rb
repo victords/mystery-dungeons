@@ -28,6 +28,7 @@ class Game
     end
 
     def draw
+      Window.clear(0)
       return if @transitioning
 
       @scene.draw

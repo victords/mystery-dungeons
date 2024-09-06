@@ -15,14 +15,14 @@ class Image
     @source_h = source_h
   end
 
-  def draw(x, y, color: 0xffffffff, scale_x: 1, scale_y: 1, angle: 0, flip: nil, z_index: 0)
+  def draw(x, y, color: 0xffffffff, scale_x: 1, scale_y: 1, angle: 0, flip: nil, z_index: 0, render_target_id: nil)
     a, r, g, b = hex_to_argb(color)
     w = scale_x * (source_w || width)
     h = scale_y * (source_h || height)
     props = {
       path: @path,
       x: x,
-      y: Window.height - y - h,
+      y: Window.target_height(render_target_id) - y - h,
       w: w,
       h: h,
       r: r,
@@ -39,7 +39,7 @@ class Image
       props[:source_w] = source_w
       props[:source_h] = source_h
     end
-    Window.output(z_index) << props
+    Window.output(z_index, render_target_id) << props
   end
 end
 

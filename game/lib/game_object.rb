@@ -67,7 +67,7 @@ class Sprite
     @animate_once_control = 0
   end
 
-  def draw(map: nil, scale_x: 1, scale_y: 1, alpha: 255, color: 0xffffff, angle: 0, z_index: 0, flip: nil, round: false)
+  def draw(map: nil, scale_x: 1, scale_y: 1, alpha: 255, color: 0xffffff, angle: 0, z_index: 0, flip: nil, round: false, render_target_id: nil)
     x = map ? @x - map.cam.x : @x
     y = map ? @y - map.cam.y : @y
     if round
@@ -80,10 +80,10 @@ class Sprite
     r, g, b = hex_to_rgb(color)
     angle ||= 0
 
-    Window.output(z_index) << {
+    Window.output(z_index, render_target_id) << {
       path: @img_path,
       x: x,
-      y: Window.height - y - height,
+      y: Window.target_height(render_target_id) - y - height,
       w: scale_x * @col_width,
       h: height,
       source_x: source_x,
@@ -115,7 +115,7 @@ class GameObject < Sprite
     @stored_forces = Vector.new
   end
 
-  def draw(map: nil, scale_x: 1, scale_y: 1, alpha: 255, color: 0xffffff, angle: 0, z_index: 0, flip: nil, round: false, scale_image_gap: true)
+  def draw(map: nil, scale_x: 1, scale_y: 1, alpha: 255, color: 0xffffff, angle: 0, z_index: 0, flip: nil, round: false, scale_image_gap: true, render_target_id: nil)
     img_gap_scale_x = scale_image_gap ? scale_x : 1
     img_gap_scale_y = scale_image_gap ? scale_y : 1
     width = scale_x * @col_width
@@ -139,10 +139,10 @@ class GameObject < Sprite
     r, g, b = hex_to_rgb(color)
     angle ||= 0
 
-    Window.output(z_index) << {
+    Window.output(z_index, render_target_id) << {
       path: @img_path,
       x: x - (map ? map.cam.x : 0),
-      y: Window.height - (y - (map ? map.cam.y : 0)) - height,
+      y: Window.target_height(render_target_id) - (y - (map ? map.cam.y : 0)) - height,
       w: width,
       h: height,
       source_x: source_x,
