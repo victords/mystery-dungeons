@@ -40,7 +40,12 @@ class EditorScene < Scene
       end
     end
 
-    @entrances.each { |(i, j)| Window.draw_rect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0xff0000ff, render_target_id: RENDER_TARGET_ID) }
+    @entrances.each_with_index do |(col, row), index|
+      x = col * TILE_SIZE
+      y = row * TILE_SIZE
+      Window.draw_rect(x, y, TILE_SIZE, TILE_SIZE, 0xff0000ff, render_target_id: RENDER_TARGET_ID)
+      @font.draw_text(index.to_s, SCALE * x, SCALE * y, 0xffffffff)
+    end
     @exits.each do |e|
       x = e.col * TILE_SIZE
       y = e.row * TILE_SIZE
