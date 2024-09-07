@@ -62,31 +62,38 @@ class EditorScene < Scene
   end
 
   def add_wall(col, row)
+    return if existing_object?(col, row)
+
     @tiles[col][row] = 0
     check_wall_tiles(col, row)
   end
 
   def add_wall_edge(col, row)
+    return if existing_object?(col, row)
+
     @tiles[col][row] = -1
     check_wall_tiles(col, row)
   end
 
   def add_entrance(col, row)
     return if @tiles[col][row]
-    return if @entrances.find { |(i, j)| i == col && j == row }
-    return if @exits.find { |x| x.col == col && x.row == row }
-    return if @objects.find { |x| x.col == col && x.row == row }
+    return if existing_object?(col, row)
 
     @entrances << [col, row]
   end
 
   def add_exit(col, row, dest_scene, dest_entr)
     return if @tiles[col][row]
-    return if @entrances.find { |(i, j)| i == col && j == row }
-    return if @exits.find { |x| x.col == col && x.row == row }
-    return if @objects.find { |x| x.col == col && x.row == row }
+    return if existing_object?(col, row)
 
     @exits << Exit.new(col, row, dest_scene, dest_entr)
+  end
+
+  def add_object(col, row, class_name, args)
+    return if @tiles[col][row]
+    return if existing_object?(col, row)
+
+    @objects << Object.const_get(class_name).new(col, row, args.split(","))
   end
 
   def delete_at(col, row)
@@ -110,14 +117,26 @@ class EditorScene < Scene
     set_wall_tile(col, row + 1) if row < TILES_Y - 1
     set_wall_tile(col - 1, row) if col > 0
   end
+
+  def existing_object?(col, row)
+    return true if @entrances.find { |(i, j)| i == col && j == row }
+    return true if @exits.find { |x| x.col == col && x.row == row }
+    @objects.find { |x| x.col == col && x.row == row }
+  end
 end
 
 class Editor
+  OBJECT_FILES_TO_EXCLUDE = %w[base_object index trigger].freeze
+
   class << self
     def init
       @scene = EditorScene.new(1)
       @exit_dest_scene = 1
       @exit_dest_entr = 0
+
+      @object_names = ($gtk.list_files("app/object").map { |s| s.chomp(".rb") } - OBJECT_FILES_TO_EXCLUDE).map(&:capitalize)
+      @object_index = 0
+
       font = Font.new(:font, 32)
       @controls = [
         Button.new(10, 10, w: 40, h: 40, anchor: :top_right, font: font, text: '#') { @active_tool = :wall },
@@ -130,6 +149,19 @@ class Editor
         (lbl_dest_entr = Label.new(50, 252, font, '0', anchor: :top_right, color: 0xffffff)),
         Button.new(10, 252, w: 32, h: 32, anchor: :top_right, font: font, text: '>') { @exit_dest_entr += 1; lbl_dest_entr.text = @exit_dest_entr.to_s },
         Button.new(90, 252, w: 32, h: 32, anchor: :top_right, font: font, text: '<') { if @exit_dest_entr > 0; @exit_dest_entr -= 1; lbl_dest_entr.text = @exit_dest_entr.to_s; end },
+        Button.new(10, 294, w: 40, h: 40, anchor: :top_right, font: font, text: 'o') { @active_tool = :object },
+        (lbl_obj_name = Label.new(50, 344, font, @object_names[0], anchor: :top_right, color: 0xffffff)),
+        Button.new(10, 344, w: 32, h: 32, anchor: :top_right, font: font, text: '>') do
+          @object_index = (@object_index + 1) % @object_names.size
+          lbl_obj_name.text = @object_names[@object_index]
+          @txt_obj_args.text = ""
+        end,
+        Button.new(180, 344, w: 32, h: 32, anchor: :top_right, font: font, text: '<') do
+          @object_index = (@object_index - 1) % @object_names.size
+          lbl_obj_name.text = @object_names[@object_index]
+          @txt_obj_args.text = ""
+        end,
+        (@txt_obj_args = TextField.new(10, 386, anchor: :top_right, font: font)),
       ]
     end
 
@@ -149,6 +181,8 @@ class Editor
           @scene.add_entrance(col, row)
         when :exit
           @scene.add_exit(col, row, @exit_dest_scene, @exit_dest_entr)
+        when :object
+          @scene.add_object(col, row, @object_names[@object_index], @txt_obj_args.text)
         end
       elsif Mouse.button_down?(:right)
         @scene.delete_at(col, row)
