@@ -4,6 +4,7 @@ class EditorScene < Scene
   RENDER_TARGET_ID = :editor_scene
   DISPLAY_WIDTH = 640
   DISPLAY_HEIGHT = 360
+  SCALE = DISPLAY_WIDTH / SCREEN_WIDTH
 
   def initialize(id)
     super(id)
@@ -44,7 +45,7 @@ class EditorScene < Scene
       x = e.col * TILE_SIZE
       y = e.row * TILE_SIZE
       Window.draw_rect(x, y, TILE_SIZE, TILE_SIZE, 0xffff0000, render_target_id: RENDER_TARGET_ID)
-      @font.draw_text("#{e.dest_scene},#{e.dest_entrance}", 2 * x, 2 * y, 0xffffffff)
+      @font.draw_text("#{e.dest_scene},#{e.dest_entrance}", SCALE * x, SCALE * y, 0xffffffff)
     end
 
     @objects.each { |o| o.draw(render_target_id: RENDER_TARGET_ID) }
@@ -112,8 +113,6 @@ class EditorScene < Scene
 end
 
 class Editor
-  SCENE_SCALE = EditorScene::DISPLAY_WIDTH / SCREEN_WIDTH
-
   class << self
     def init
       @scene = EditorScene.new(1)
@@ -138,8 +137,8 @@ class Editor
       @controls.each(&:update)
       return unless Mouse.over?(0, 0, EditorScene::DISPLAY_WIDTH, EditorScene::DISPLAY_HEIGHT)
 
-      col = (Mouse.x / (TILE_SIZE * SCENE_SCALE)).floor
-      row = (Mouse.y / (TILE_SIZE * SCENE_SCALE)).floor
+      col = (Mouse.x / (TILE_SIZE * EditorScene::SCALE)).floor
+      row = (Mouse.y / (TILE_SIZE * EditorScene::SCALE)).floor
       if Mouse.button_down?(:left)
         case @active_tool
         when :wall
