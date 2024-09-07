@@ -2,8 +2,8 @@ require_relative 'scene'
 
 class EditorScene < Scene
   RENDER_TARGET_ID = :editor_scene
-  DISPLAY_WIDTH = 640
-  DISPLAY_HEIGHT = 360
+  DISPLAY_WIDTH = 960
+  DISPLAY_HEIGHT = 540
   SCALE = DISPLAY_WIDTH / SCREEN_WIDTH
 
   def initialize(id)
@@ -139,17 +139,18 @@ class Editor
 
       font = Font.new(:font, 32)
       @controls = [
-        Button.new(10, 10, w: 40, h: 40, anchor: :top_right, font: font, text: '#') { @active_tool = :wall },
-        Button.new(10, 60, w: 40, h: 40, anchor: :top_right, font: font, text: '/') { @active_tool = :wall_edge },
-        Button.new(10, 110, w: 40, h: 40, anchor: :top_right, font: font, text: 'e') { @active_tool = :entrance },
-        Button.new(10, 160, w: 40, h: 40, anchor: :top_right, font: font, text: 'x') { @active_tool = :exit },
+        (@lbl_tool = Label.new(EditorScene::DISPLAY_WIDTH + 10, 10, font, "[none]", color: 0xffffff)),
+        Button.new(10, 10, w: 40, h: 40, anchor: :top_right, font: font, text: '#') { set_tool(:wall) },
+        Button.new(10, 60, w: 40, h: 40, anchor: :top_right, font: font, text: '/') { set_tool(:wall_edge) },
+        Button.new(10, 110, w: 40, h: 40, anchor: :top_right, font: font, text: 'e') { set_tool(:entrance) },
+        Button.new(10, 160, w: 40, h: 40, anchor: :top_right, font: font, text: 'x') { set_tool(:exit) },
         (lbl_dest_scene = Label.new(50, 210, font, '1', anchor: :top_right, color: 0xffffff)),
         Button.new(10, 210, w: 32, h: 32, anchor: :top_right, font: font, text: '>') { @exit_dest_scene += 1; lbl_dest_scene.text = @exit_dest_scene.to_s },
         Button.new(90, 210, w: 32, h: 32, anchor: :top_right, font: font, text: '<') { if @exit_dest_scene > 1; @exit_dest_scene -= 1; lbl_dest_scene.text = @exit_dest_scene.to_s; end },
         (lbl_dest_entr = Label.new(50, 252, font, '0', anchor: :top_right, color: 0xffffff)),
         Button.new(10, 252, w: 32, h: 32, anchor: :top_right, font: font, text: '>') { @exit_dest_entr += 1; lbl_dest_entr.text = @exit_dest_entr.to_s },
         Button.new(90, 252, w: 32, h: 32, anchor: :top_right, font: font, text: '<') { if @exit_dest_entr > 0; @exit_dest_entr -= 1; lbl_dest_entr.text = @exit_dest_entr.to_s; end },
-        Button.new(10, 294, w: 40, h: 40, anchor: :top_right, font: font, text: 'o') { @active_tool = :object },
+        Button.new(10, 294, w: 40, h: 40, anchor: :top_right, font: font, text: 'o') { set_tool(:object) },
         (lbl_obj_name = Label.new(50, 344, font, @object_names[0], anchor: :top_right, color: 0xffffff)),
         Button.new(10, 344, w: 32, h: 32, anchor: :top_right, font: font, text: '>') do
           @object_index = (@object_index + 1) % @object_names.size
@@ -193,6 +194,16 @@ class Editor
       $args.outputs.solids << { x: 0, y: 0, w: EDITOR_SCREEN_WIDTH, h: EDITOR_SCREEN_HEIGHT, r: 0, g: 0, b: 0, a: 255 }
       @scene.draw
       @controls.each(&:draw)
+
+      (1..TILES_X).each { |i| Window.draw_rect(i * TILE_SIZE * EditorScene::SCALE, 0, 1, EditorScene::DISPLAY_HEIGHT, 0x80ffffff) }
+      (1..TILES_Y).each { |i| Window.draw_rect(0, i * TILE_SIZE * EditorScene::SCALE, EditorScene::DISPLAY_WIDTH, 1, 0x80ffffff) }
+    end
+
+    private
+
+    def set_tool(tool)
+      @active_tool = tool
+      @lbl_tool.text = "[#{tool}]"
     end
   end
 end
