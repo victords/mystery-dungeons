@@ -4,7 +4,7 @@ class Gate < BaseObject
   def initialize(col, row, args)
     @triggered_by_id = args[0]
     @solid = true
-    super(col, row, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE, 'object/gate', 2, 2)
+    super(col, row, args, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE, 'object/gate', 2, 2)
   end
 
   def solid?

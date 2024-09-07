@@ -1,6 +1,6 @@
 class Lantern < BaseObject
   def initialize(col, row, _args)
-    super(col, row, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE, 'object/lantern', 3, 1, img_gap: Vector.new(-6, -6))
+    super(col, row, args, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE, 'object/lantern', 3, 1, img_gap: Vector.new(-6, -6))
   end
 
   def update(scene)

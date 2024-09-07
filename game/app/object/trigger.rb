@@ -3,7 +3,7 @@ class Trigger < BaseObject
 
   def initialize(col, row, args, *rest)
     @id = args[0]
-    super(col, row, *rest)
+    super(col, row, args, *rest)
   end
 
   def trigger?; true; end

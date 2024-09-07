@@ -108,6 +108,16 @@ class EditorScene < Scene
     @objects.reject! { |x| x.col == col && x.row == row }
   end
 
+  def serialize
+    lines = [
+      @entrances.map { |e| e.join(',') }.join('|'),
+      @exits.map { |e| "#{e.col},#{e.row},#{e.dest_scene},#{e.dest_entrance}" }.join('|'),
+      @objects.map { |o| "#{o.class},#{o.col},#{o.row}#{o.args ? ",#{o.args.join(',')}" : ''}" }.join('|'),
+    ]
+    lines += @tiles.transpose.map { |row| row.map { |tile| tile_char_from_number(tile) }.join }
+    lines.join("\n")
+  end
+
   private
 
   def check_wall_tiles(col, row)
@@ -123,6 +133,12 @@ class EditorScene < Scene
     return true if @exits.find { |x| x.col == col && x.row == row }
     @objects.find { |x| x.col == col && x.row == row }
   end
+
+  def tile_char_from_number(tile)
+    return '_' if tile.nil?
+    return '#' if tile >= 0
+    '/'
+  end
 end
 
 class Editor
@@ -136,6 +152,8 @@ class Editor
 
       @object_names = ($gtk.list_files("app/object").map { |s| s.chomp(".rb") } - OBJECT_FILES_TO_EXCLUDE).map(&:capitalize)
       @object_index = 0
+
+      @level_id = 1
 
       font = Font.new(:font, 32)
       @controls = [
@@ -162,7 +180,12 @@ class Editor
           lbl_obj_name.text = @object_names[@object_index]
           @txt_obj_args.text = ""
         end,
-        (@txt_obj_args = TextField.new(10, 386, anchor: :top_right, font: font)),
+        (@txt_obj_args = TextField.new(10, 386, anchor: :top_right, font: font, h: 32)),
+        (lbl_level = Label.new(50, 428, font, '1', anchor: :top_right, color: 0xffffff)),
+        Button.new(10, 428, w: 32, h: 32, anchor: :top_right, font: font, text: '>') { @level_id += 1; lbl_level.text = @level_id.to_s },
+        Button.new(90, 428, w: 32, h: 32, anchor: :top_right, font: font, text: '<') { if @level_id > 1; @level_id -= 1; lbl_level.text = @level_id.to_s; end },
+        Button.new(10, 470, h: 40, anchor: :top_right, font: font, text: 'Save') { $gtk.write_file("data/scene/#{@level_id}.txt", @scene.serialize) },
+        Button.new(10, 520, h: 40, anchor: :top_right, font: font, text: 'Load') { @scene = EditorScene.new(@level_id) },
       ]
     end
 

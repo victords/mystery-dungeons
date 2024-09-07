@@ -6,6 +6,6 @@ class Graphic < BaseObject
       when 1 then [-5, -5]
       else        [0, 0]
       end
-    super(col, row, col * TILE_SIZE + offset_x, row * TILE_SIZE + offset_y, 1, 1, "graphic/#{type}")
+    super(col, row, args, col * TILE_SIZE + offset_x, row * TILE_SIZE + offset_y, 1, 1, "graphic/#{type}")
   end
 end
