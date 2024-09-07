@@ -1,7 +1,5 @@
 require_relative 'scene'
 
-$font = Font.new(:font, 32)
-
 class EditorScene < Scene
   RENDER_TARGET_ID = :editor_scene
   DISPLAY_WIDTH = 640
@@ -9,6 +7,7 @@ class EditorScene < Scene
 
   def initialize(id)
     super(id)
+    @font = Font.new(:font, 16)
   end
 
   def draw
@@ -45,7 +44,7 @@ class EditorScene < Scene
       x = e.col * TILE_SIZE
       y = e.row * TILE_SIZE
       Window.draw_rect(x, y, TILE_SIZE, TILE_SIZE, 0xffff0000, render_target_id: RENDER_TARGET_ID)
-      $font.draw_text("#{e.dest_scene},#{e.dest_entrance}", x, y, 0xffffff)
+      @font.draw_text("#{e.dest_scene},#{e.dest_entrance}", 2 * x, 2 * y, 0xffffffff)
     end
 
     @objects.each { |o| o.draw(render_target_id: RENDER_TARGET_ID) }
@@ -85,7 +84,7 @@ class EditorScene < Scene
     return if @entrances.find { |(i, j)| i == col && j == row }
     return if @exits.find { |x| x.col == col && x.row == row }
     return if @objects.find { |x| x.col == col && x.row == row }
-    
+
     @exits << Exit.new(col, row, dest_scene, dest_entr)
   end
 
@@ -100,7 +99,7 @@ class EditorScene < Scene
     @exits.reject! { |x| x.col == col && x.row == row }
     @objects.reject! { |x| x.col == col && x.row == row }
   end
-  
+
   private
 
   def check_wall_tiles(col, row)
@@ -120,17 +119,18 @@ class Editor
       @scene = EditorScene.new(1)
       @exit_dest_scene = 1
       @exit_dest_entr = 0
+      font = Font.new(:font, 32)
       @controls = [
-        Button.new(10, 10, w: 40, h: 40, anchor: :top_right, font: $font, text: '#') { @active_tool = :wall },
-        Button.new(10, 60, w: 40, h: 40, anchor: :top_right, font: $font, text: '/') { @active_tool = :wall_edge },
-        Button.new(10, 110, w: 40, h: 40, anchor: :top_right, font: $font, text: 'e') { @active_tool = :entrance },
-        Button.new(10, 160, w: 40, h: 40, anchor: :top_right, font: $font, text: 'x') { @active_tool = :exit },
-        (lbl_dest_scene = Label.new(50, 210, $font, '1', anchor: :top_right, color: 0xffffff)),
-        Button.new(10, 210, w: 32, h: 32, anchor: :top_right, font: $font, text: '>') { @exit_dest_scene += 1; lbl_dest_scene.text = @exit_dest_scene.to_s },
-        Button.new(90, 210, w: 32, h: 32, anchor: :top_right, font: $font, text: '<') { if @exit_dest_scene > 1; @exit_dest_scene -= 1; lbl_dest_scene.text = @exit_dest_scene.to_s; end },
-        (lbl_dest_entr = Label.new(50, 252, $font, '0', anchor: :top_right, color: 0xffffff)),
-        Button.new(10, 252, w: 32, h: 32, anchor: :top_right, font: $font, text: '>') { @exit_dest_entr += 1; lbl_dest_entr.text = @exit_dest_entr.to_s },
-        Button.new(90, 252, w: 32, h: 32, anchor: :top_right, font: $font, text: '<') { if @exit_dest_entr > 0; @exit_dest_entr -= 1; lbl_dest_entr.text = @exit_dest_entr.to_s; end },
+        Button.new(10, 10, w: 40, h: 40, anchor: :top_right, font: font, text: '#') { @active_tool = :wall },
+        Button.new(10, 60, w: 40, h: 40, anchor: :top_right, font: font, text: '/') { @active_tool = :wall_edge },
+        Button.new(10, 110, w: 40, h: 40, anchor: :top_right, font: font, text: 'e') { @active_tool = :entrance },
+        Button.new(10, 160, w: 40, h: 40, anchor: :top_right, font: font, text: 'x') { @active_tool = :exit },
+        (lbl_dest_scene = Label.new(50, 210, font, '1', anchor: :top_right, color: 0xffffff)),
+        Button.new(10, 210, w: 32, h: 32, anchor: :top_right, font: font, text: '>') { @exit_dest_scene += 1; lbl_dest_scene.text = @exit_dest_scene.to_s },
+        Button.new(90, 210, w: 32, h: 32, anchor: :top_right, font: font, text: '<') { if @exit_dest_scene > 1; @exit_dest_scene -= 1; lbl_dest_scene.text = @exit_dest_scene.to_s; end },
+        (lbl_dest_entr = Label.new(50, 252, font, '0', anchor: :top_right, color: 0xffffff)),
+        Button.new(10, 252, w: 32, h: 32, anchor: :top_right, font: font, text: '>') { @exit_dest_entr += 1; lbl_dest_entr.text = @exit_dest_entr.to_s },
+        Button.new(90, 252, w: 32, h: 32, anchor: :top_right, font: font, text: '<') { if @exit_dest_entr > 0; @exit_dest_entr -= 1; lbl_dest_entr.text = @exit_dest_entr.to_s; end },
       ]
     end
 
