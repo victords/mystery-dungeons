@@ -20,19 +20,26 @@ class Scene
 
   def initialize(id)
     @tiles = Array.new(TILES_X) { Array.new(TILES_Y) }
+    @tileset = Tileset.new(:walls, 4, 4)
     @objects = []
     @solids = []
     @triggers = []
     @triggered_by = {}
 
     content = $gtk.read_file("data/scene/#{id}.txt")
+    if content.nil? && $editor
+      @entrances = []
+      @exits = []
+      return
+    end
+
     content.each_line.with_index do |line, j|
       if j == 0
-        @entrances = line.split("|").map { |s| s.split(",").map(&:to_i) }
+        @entrances = line.chomp.empty? ? [] : line.split("|").map { |s| s.split(",").map(&:to_i) }
         next
       end
       if j == 1
-        @exits = line.split("|").map { |s| Exit.new(*s.split(",").map(&:to_i)) }
+        @exits = line.chomp.empty? ? [] : line.split("|").map { |s| Exit.new(*s.split(",").map(&:to_i)) }
         next
       end
       if j == 2
@@ -64,7 +71,6 @@ class Scene
         set_wall_tile(i, j)
       end
     end
-    @tileset = Tileset.new(:walls, 4, 4)
   end
 
   def obstacles_for(obj)

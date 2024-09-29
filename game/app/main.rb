@@ -3,10 +3,10 @@ require_relative 'constants'
 require_relative 'game'
 require_relative 'editor'
 
-$editor = true
+# $editor = true
 
 def tick(args)
-  start = Time.now
+  # start = Time.now
   if args.tick_count.zero?
     G.initialize(
       screen_width: $editor ? EDITOR_SCREEN_WIDTH : SCREEN_WIDTH,
@@ -33,6 +33,6 @@ def tick(args)
   $editor ? Editor.draw : Game.draw
   Window.end_draw
 
-  diff = Time.now - start
-  puts diff if diff > 0.01
+  # diff = Time.now - start
+  # puts diff if diff > 0.01
 end

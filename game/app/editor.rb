@@ -74,8 +74,6 @@ class EditorScene < Scene
   end
 
   def add_wall_edge(col, row)
-    return if existing_object?(col, row)
-
     @tiles[col][row] = -1
     check_wall_tiles(col, row)
   end
@@ -95,7 +93,7 @@ class EditorScene < Scene
   end
 
   def add_object(col, row, class_name, args)
-    return if @tiles[col][row]
+    return if wall?(col, row)
     return if existing_object?(col, row)
 
     @objects << Object.const_get(class_name).new(col, row, args.split(","))
