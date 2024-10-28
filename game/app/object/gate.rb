@@ -11,7 +11,7 @@ class Gate < BaseObject
     @solid
   end
 
-  def on_trigger
+  def on_trigger(_trigger, _activator)
     @solid = false
   end
 

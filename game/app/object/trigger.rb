@@ -8,7 +8,7 @@ class Trigger < BaseObject
 
   def trigger?; true; end
 
-  def activate
+  def activate(_activator)
     @active = true
   end
 

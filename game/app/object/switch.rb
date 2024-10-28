@@ -3,8 +3,8 @@ class Switch < Trigger
     super(col, row, args, col * TILE_SIZE + 4, row * TILE_SIZE + 4, 2, 2, 'object/switch', 2, 1, img_gap: Vector.new(-3, -3))
   end
 
-  def activate
+  def activate(activator)
     @img_index = 1
-    super
+    super(activator)
   end
 end

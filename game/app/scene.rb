@@ -106,11 +106,11 @@ class Scene
     end
   end
 
-  def on_trigger(trigger)
+  def on_trigger(trigger, activator)
     return if trigger.active?
+    return unless trigger.activate(activator)
 
-    trigger.activate
-    @triggered_by[trigger.id]&.each(&:on_trigger)
+    @triggered_by[trigger.id]&.each { |obj| obj.on_trigger(trigger, activator) }
   end
 
   def update

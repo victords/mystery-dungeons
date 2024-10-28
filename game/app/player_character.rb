@@ -1,5 +1,9 @@
+require_relative 'traits/trigger_activator'
+
 class PlayerCharacter < GameObject
   RAMPS = [].freeze
+
+  include TriggerActivator
 
   attr_writer :on_exit
 
@@ -37,10 +41,7 @@ class PlayerCharacter < GameObject
       return
     end
 
-    scene.triggers.each do |trigger|
-      next if trigger.active?
-      scene.on_trigger(trigger) if trigger.bounds.intersect?(bounds)
-    end
+    check_triggers(scene)
   end
 
   def draw
