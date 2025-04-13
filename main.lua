@@ -11,6 +11,7 @@ end
 
 function love.update(dt)
   controller.update()
+  print(love.timer.getFPS())
 end
 
 function love.draw()

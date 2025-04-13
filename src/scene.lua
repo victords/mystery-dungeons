@@ -111,18 +111,9 @@ function Scene:obstacles_for(obj)
 end
 
 function Scene:add_light(obj, radius)
-  local col = math.floor((obj.x + obj.w * 0.5) / TILE_SIZE) + 1
-  local row = math.floor((obj.y + obj.h * 0.5) / TILE_SIZE) + 1
-  local min_col = col - radius > 1 and col - radius or 1
-  local max_col = col + radius < TILES_X and col + radius or TILES_X
-  local min_row = row - radius > 1 and row - radius or 1
-  local max_row = row + radius < TILES_Y and row + radius or TILES_Y
-  for i = min_col, max_col do
-    for j = min_row, max_row do
-      distance = math.sqrt((i - col)^2 + (j - row)^2)
-      self.light[i][j] = self.light[i][j] - (1 - 0.5 * (distance - 1) / (radius - 1))
-    end
-  end
+  local x = obj.x + obj.w * 0.5
+  local y = obj.y + obj.h * 0.5
+  table.insert(self.lights, {x, y, radius * TILE_SIZE})
 end
 
 function Scene:check_triggers(obj)
@@ -145,13 +136,7 @@ function Scene:on_trigger(trigger, activator)
 end
 
 function Scene:update()
-  self.light = {}
-  for i = 1, TILES_X do
-    self.light[i] = {}
-    for j = 1, TILES_Y do
-      self.light[i][j] = 1
-    end
-  end
+  self.lights = {}
   for _, obj in ipairs(self.objects) do obj:update(self) end
 end
 
@@ -177,14 +162,6 @@ function Scene:draw()
   end
 
   for _, obj in ipairs(self.objects) do obj:draw() end
-
-  for i = 1, TILES_X do
-    for j = 1, TILES_Y do
-      if self.light[i][j] > 0 then
-        Window.draw_rectangle((i - 1) * TILE_SIZE, (j - 1) * TILE_SIZE, TILE_SIZE, TILE_SIZE, {0, 0, 0, self.light[i][j]})
-      end
-    end
-  end
 end
 
 function Scene:is_wall(i, j)

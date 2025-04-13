@@ -56,7 +56,9 @@ end
 function Window.set_shader(path, extension)
   extension = extension or "glsl"
   Window.shader = love.graphics.newShader(path .. "." .. extension)
-  Window.canvas = love.graphics.newCanvas(Window.reference_width, Window.reference_height)
+  if Window.canvas == nil then
+    Window.canvas = love.graphics.newCanvas(Window.reference_width, Window.reference_height)
+  end
 end
 
 function Window.draw_rectangle(x, y, w, h, color, mode)
