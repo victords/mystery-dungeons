@@ -1,10 +1,13 @@
-class Switch < Trigger
-  def initialize(col, row, args)
-    super(col, row, args, col * TILE_SIZE + 4, row * TILE_SIZE + 4, 2, 2, 'object/switch', 2, 1, img_gap: Vector.new(-3, -3))
-  end
+Switch = setmetatable({}, Trigger)
+Switch.__index = Switch
 
-  def activate(activator)
-    @img_index = 1
-    super(activator)
-  end
+function Switch.new(col, row, args)
+  local self = Trigger.new(col, row, args, col * TILE_SIZE + 4, row * TILE_SIZE + 4, 2, 2, "object/switch", Vector.new(-3, -3), 2, 1)
+  setmetatable(self, Switch)
+  return self
+end
+
+function Switch:activate(activator)
+  self.img_index = 1
+  Trigger.activate(self, activator)
 end

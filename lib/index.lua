@@ -80,6 +80,13 @@ Utils = {
     end
     return t
   end,
+  map = function(table, mapper)
+    local mapped = {}
+    for k, v in pairs(table) do
+      mapped[k] = mapper(v)
+    end
+    return mapped
+  end,
   check_anchor = function(anchor, x, y, w, h, area_w, area_h)
     area_w = area_w or Window.reference_width
     area_h = area_h or Window.reference_height

@@ -1,8 +1,8 @@
-require_relative 'base_object'
-require_relative 'trigger'
+require("src.object.base_object")
+require("src.object.trigger")
 
-require_relative 'box'
-require_relative 'gate'
-require_relative 'graphic'
-require_relative 'lantern'
-require_relative 'switch'
+require("src.object.box")
+require("src.object.gate")
+require("src.object.graphic")
+require("src.object.lantern")
+require("src.object.switch")

@@ -1,13 +1,15 @@
-require 'app/traits/trigger_activator'
+require("src.traits.trigger_activator")
 
-class Box < BaseObject
-  include TriggerActivator
+Box = setmetatable({}, BaseObject)
+Box.__index = Box
 
-  def initialize(col, row, args)
-    super(col, row, args, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE, 'object/box')
-  end
+function Box.new(col, row, args)
+  local self = BaseObject.new(col, row, args, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE, "object/box")
+  setmetatable(self, Box)
+  Utils.include(self, TriggerActivator)
+  return self
+end
 
-  def update(scene)
-    check_triggers(scene)
-  end
+function Box:update(scene)
+  TriggerActivator.check_triggers(self, scene)
 end

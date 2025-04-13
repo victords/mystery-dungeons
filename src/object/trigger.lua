@@ -1,18 +1,18 @@
-class Trigger < BaseObject
-  attr_reader :id
+Trigger = setmetatable({}, BaseObject)
+Trigger.__index = Trigger
 
-  def initialize(col, row, args, *rest)
-    @id = args[0]
-    super(col, row, args, *rest)
-  end
+function Trigger.new(col, row, args, x, y, w, h, img_path, img_gap, cols, rows)
+  local self = BaseObject.new(col, row, args, x, y, w, h, img_path, img_gap, cols, rows)
+  setmetatable(self, Trigger)
+  self.id = args[1]
+  return self
+end
 
-  def trigger?; true; end
+function Trigger:is_trigger()
+  return true
+end
 
-  def activate(_activator)
-    @active = true
-  end
-
-  def active?
-    @active
-  end
+function Trigger:activate(_activator)
+  self.active = true
+  return true
 end

@@ -1,18 +1,18 @@
-class BaseObject < GameObject
-  attr_reader :col, :row, :args
+BaseObject = setmetatable({}, GameObject)
+BaseObject.__index = BaseObject
 
-  def initialize(col, row, args, *rest)
-    @col = col
-    @row = row
-    @args = args
-    super(*rest)
-  end
+function BaseObject.new(col, row, args, x, y, w, h, img_path, img_gap, cols, rows)
+  local self = GameObject.new(x, y, w, h, img_path, img_gap, cols, rows)
+  setmetatable(self, BaseObject)
+  self.col = col
+  self.row = row
+  self.args = args
+  self.solid = false
+  return self
+end
 
-  def update(_scene); end
+function BaseObject:update(_scene) end
 
-  def solid?; false; end
-
-  def trigger?; false; end
-
-  def triggered_by_id; nil; end
+function BaseObject:is_trigger()
+  return false
 end

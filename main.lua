@@ -1,8 +1,8 @@
 require("lib.index")
 require("src.game")
-require("src.editor")
+--require("src.editor")
 
-editor = true
+--editor = true
 
 function love.load()
   controller = editor and Editor or Game

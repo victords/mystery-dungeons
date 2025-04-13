@@ -1,10 +1,13 @@
-class Lantern < BaseObject
-  def initialize(col, row, _args)
-    super(col, row, args, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE, 'object/lantern', 3, 1, img_gap: Vector.new(-6, -6))
-  end
+Lantern = setmetatable({}, BaseObject)
+Lantern.__index = Lantern
 
-  def update(scene)
-    scene.add_light(self, 2)
-    animate([0, 1, 2, 1], 10)
-  end
+function Lantern.new(col, row, args)
+  local self = BaseObject.new(col, row, args, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE, "object/lantern", Vector.new(-6, -6), 3, 1)
+  setmetatable(self, Lantern)
+  return self
+end
+
+function Lantern:update(scene)
+  scene:add_light(self, 2)
+  self:animate({1, 2, 3, 2}, 10)
 end

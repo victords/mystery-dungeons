@@ -1,9 +1,10 @@
-module TriggerActivator
-  def check_triggers(scene)
-    scene.triggers.each do |trigger|
-      next if trigger.active?
+TriggerActivator = {}
+TriggerActivator.__index = TriggerActivator
 
-      scene.on_trigger(trigger, self) if trigger.bounds.intersect?(bounds)
+function TriggerActivator:check_triggers(scene)
+  for _, trigger in ipairs(scene.triggers) do
+    if trigger:bounds():intersect(self:bounds()) and not trigger.active then
+      scene:on_trigger(trigger, self)
     end
   end
 end

@@ -1,7 +1,12 @@
-class Graphic < BaseObject
-  def initialize(col, row, args)
-    type = args[0].to_i
-    offset_x, offset_y = [0, 0] # TODO case type
-    super(col, row, args, col * TILE_SIZE + offset_x, row * TILE_SIZE + offset_y, 1, 1, "graphic/#{type}")
-  end
+Graphic = setmetatable({}, BaseObject)
+Graphic.__index = Graphic
+
+function Graphic.new(col, row, args)
+  local type = args[1]
+  -- TODO offsets depending on type
+  local offset_x = 0
+  local offset_y = 0
+  local self = BaseObject.new(col, row, args, col * TILE_SIZE + offset_x, row * TILE_SIZE + offset_y, "graphic/" .. type)
+  setmetatable(self, Graphic)
+  return self
 end

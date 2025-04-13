@@ -1,52 +1,34 @@
 require("src.constants")
+require("src.scene")
+require("src.player_character")
 
 Game = {
   init = function ()
     Window.set_size(false, WINDOW_WIDTH, WINDOW_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT)
+    Game.scene = Scene.new(1)
+    Game.scenes = { scene }
+    Game.player = PlayerCharacter.new()
+    local entrance = Game.scene.entrances[1]
+    Game.player:set_position(entrance[1], entrance[2])
+    Game.player.on_exit = Game.on_player_exit
+  end,
+  on_player_exit = function(exit_obj)
+    local dest_scene_id = exit_obj.dest_scene
+    Game.scenes[dest_scene_id] = Game.scenes[dest_scene_id] or Scene.new(dest_scene_id)
+    Game.scene = Game.scenes[dest_scene_id]
+    local entrance = Game.scene.entrances[exit_obj.dest_entrance]
+    Game.player:set_position(entrance[1], entrance[2])
+    Game.transitioning = true
   end,
   update = function ()
-    print("game update")
+    Game.transitioning = false
+    Game.scene:update()
+    Game.player:update(Game.scene)
   end,
   draw = function ()
-    print("game draw")
+    if Game.transitioning then return end
+
+    Game.scene:draw()
+    Game.player:draw()
   end
 }
-
---require_relative 'player_character'
---require_relative 'scene'
---
---class Game
---  class << self
---    def init
---      @scenes = {}
---      @scenes[1] = @scene = Scene.new(1)
---      @player = PlayerCharacter.new
---      entrance = @scene.entrances[0]
---      @player.set_position(entrance[0], entrance[1])
---      @player.on_exit = method(:on_player_exit)
---    end
---
---    def on_player_exit(exit_obj)
---      dest_scene_id = exit_obj.dest_scene
---      @scenes[dest_scene_id] ||= Scene.new(dest_scene_id)
---      @scene = @scenes[dest_scene_id]
---      entrance = @scene.entrances[exit_obj.dest_entrance]
---      @player.set_position(entrance[0], entrance[1])
---      @transitioning = true
---    end
---
---    def update
---      @transitioning = false
---      @scene.update
---      @player.update(@scene)
---    end
---
---    def draw
---      Window.clear(0)
---      return if @transitioning
---
---      @scene.draw
---      @player.draw
---    end
---  end
---end

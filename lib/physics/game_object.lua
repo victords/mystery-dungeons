@@ -16,7 +16,7 @@ function GameObject.new(x, y, w, h, img_path, img_gap, cols, rows, mass, max_spe
   return self
 end
 
-function GameObject:draw(scale_x, scale_y, color, angle, flip, scale_img_gap)
+function GameObject:draw(scale_x, scale_y, color, angle, flip, scale_img_gap, round)
   scale_x = scale_x or 1
   scale_y = scale_y or 1
   if scale_img_gap == nil then scale_img_gap = true end
@@ -26,6 +26,10 @@ function GameObject:draw(scale_x, scale_y, color, angle, flip, scale_img_gap)
   local origin_y = 0.5 * (self.h / scale_y) - self.img_gap.y
   local x = self.x + img_gap_scale_x * self.img_gap.x + scale_x * origin_x
   local y = self.y + img_gap_scale_y * self.img_gap.y + scale_y * origin_y
+  if round then
+    x = Utils.round(x)
+    y = Utils.round(y)
+  end
   local scale_x_factor = flip == "horiz" and -1 or 1
   local scale_y_factor = flip == "vert" and -1 or 1
   if color then love.graphics.setColor(color) end

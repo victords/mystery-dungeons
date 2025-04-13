@@ -1,50 +1,57 @@
-require_relative 'traits/trigger_activator'
+require("src.traits.trigger_activator")
 
-class PlayerCharacter < GameObject
-  RAMPS = [].freeze
+RAMPS = {}
 
-  include TriggerActivator
+PlayerCharacter = setmetatable({}, GameObject)
+PlayerCharacter.__index = PlayerCharacter
 
-  attr_writer :on_exit
+function PlayerCharacter.new()
+  local self = GameObject.new(0, 0, 6, 6, "char", Vector.new(-1, -1))
+  setmetatable(self, PlayerCharacter)
+  self.angle = 0
+  return self
+end
 
-  def initialize
-    super(0, 0, 6, 6, :char, img_gap: Vector.new(-1, -1))
-    @angle = 0
+function PlayerCharacter:set_position(col, row)
+  self.x = col * TILE_SIZE + 2
+  self.y = row * TILE_SIZE + 2
+end
+
+function PlayerCharacter:update(scene)
+  local forces = Vector.new()
+  if KB.down("left") then
+    forces.x = -1
+    self.angle = -90
+  elseif KB.down("right") then
+    forces.x = 1
+    self.angle = 90
+  elseif KB.down("up") then
+    forces.y = -1
+    self.angle = 0
+  elseif KB.down("down") then
+    forces.y = 1
+    self.angle = 180
   end
+  self:move(forces, scene:obstacles_for(self), RAMPS, true)
+  scene:add_light(self, 3)
 
-  def set_position(col, row)
-    @x = col * TILE_SIZE + 2
-    @y = row * TILE_SIZE + 2
-  end
-
-  def update(scene)
-    forces = Vector.new
-    if KB.key_down?(:left_arrow)
-      forces.x = -1
-      @angle = -90
-    elsif KB.key_down?(:right_arrow)
-      forces.x = 1
-      @angle = 90
-    elsif KB.key_down?(:up_arrow)
-      forces.y = -1
-      @angle = 0
-    elsif KB.key_down?(:down_arrow)
-      forces.y = 1
-      @angle = 180
+  if self.on_exit then
+    local exit_obj
+    for _, e in ipairs(scene.exits) do
+      if self:bounds():intersect(e) then
+        exit_obj = e
+        break
+      end
     end
-    move(forces, scene.obstacles_for(self), RAMPS, set_speed: true)
-    scene.add_light(self, 3)
-
-    exit_obj = scene.exits.find { |e| bounds.intersect?(e) }
-    if exit_obj
-      @on_exit&.call(exit_obj)
+    if exit_obj then
+      self.on_exit(exit_obj)
       return
     end
-
-    check_triggers(scene)
   end
 
-  def draw
-    super(angle: @angle, round: true)
-  end
+  TriggerActivator.check_triggers(self, scene)
+end
+
+function PlayerCharacter:draw()
+  GameObject.draw(self, nil, nil, nil, self.angle, nil, nil, true)
 end

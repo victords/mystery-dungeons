@@ -1,23 +1,19 @@
-class Gate < BaseObject
-  attr_reader :triggered_by_id
+Gate = setmetatable({}, BaseObject)
+Gate.__index = Gate
 
-  def initialize(col, row, args)
-    @triggered_by_id = args[0]
-    @solid = true
-    super(col, row, args, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE, 'object/gate', 2, 2)
-  end
+function Gate.new(col, row, args)
+  local self = BaseObject.new(col, row, args, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE, "object/gate", Vector.new(), 2, 2)
+  setmetatable(self, Gate)
+  self.solid = true
+  self.triggered_by_id = args[1]
+end
 
-  def solid?
-    @solid
-  end
+function Gate:on_trigger(_trigger, _activator)
+  self.solid = false
+end
 
-  def on_trigger(_trigger, _activator)
-    @solid = false
-  end
+function Gate:update(scene)
+  if self.solid then return end
 
-  def update(_scene)
-    return if @solid
-
-    animate_once([1, 2, 3], 7)
-  end
+  self:animate_once({2, 3, 4}, 7)
 end
