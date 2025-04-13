@@ -13,8 +13,8 @@ function Exit.new(col, row, dest_scene, dest_entrance)
   local self = setmetatable({}, Exit)
   self.col = col
   self.row = row
-  self.x = col * TILE_SIZE + 2
-  self.y = row * TILE_SIZE + 2
+  self.x = (col - 1) * TILE_SIZE + 2
+  self.y = (row - 1) * TILE_SIZE + 2
   self.w = TILE_SIZE - 4
   self.h = TILE_SIZE - 4
   self.dest_scene = dest_scene
@@ -56,7 +56,7 @@ function Scene.new(id)
       obj_data = Utils.map(Utils.split(line, "|"), function (o) return Utils.split(o, ",") end)
       for _, data in ipairs(obj_data) do
         local rest = {}
-        for i = 4, #data do table.insert(data[i]) end
+        for i = 4, #data do table.insert(rest, data[i]) end
         local obj = _G[data[1]].new(tonumber(data[2]), tonumber(data[3]), rest)
         table.insert(self.objects, obj)
         if obj:is_trigger() then table.insert(self.triggers, obj) end
@@ -98,7 +98,7 @@ function Scene:obstacles_for(obj)
   for i = min_col, max_col do
     for j = min_row, max_row do
       if self:is_wall(i, j) then
-        table.insert(obstacles, Block.new(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE))
+        table.insert(obstacles, Block.new((i - 1) * TILE_SIZE, (j - 1) * TILE_SIZE, TILE_SIZE, TILE_SIZE))
       end
     end
   end
@@ -120,17 +120,23 @@ function Scene:add_light(obj, radius)
   for i = min_col, max_col do
     for j = min_row, max_row do
       distance = math.sqrt((i - col)^2 + (j - row)^2)
-      if self.light[i][j] == nil then
-        print(i, j, col, row, radius)
-      end
       self.light[i][j] = self.light[i][j] - (1 - 0.5 * (distance - 1) / (radius - 1))
+    end
+  end
+end
+
+function Scene:check_triggers(obj)
+  local obj_bounds = obj:bounds()
+  for _, trigger in ipairs(self.triggers) do
+    if trigger:bounds():intersect(obj_bounds) and not trigger.active then
+      self:on_trigger(trigger, obj)
     end
   end
 end
 
 function Scene:on_trigger(trigger, activator)
   if trigger.active then return end
-  if not trigger.activate(activator) then return end
+  if not trigger:activate(activator) then return end
   if self.triggered_by[trigger.id] == nil then return end
 
   for _, obj in ipairs(self.triggered_by[trigger.id]) do
@@ -153,7 +159,7 @@ function Scene:draw()
   for i = 1, TILES_X do
     for j = 1, TILES_Y do
       if self:is_wall(i, j) then
-        self.tileset[self.tiles[i][j] + 1]:draw(i * TILE_SIZE, j * TILE_SIZE)
+        self.tileset[self.tiles[i][j] + 1]:draw((i - 1) * TILE_SIZE, (j - 1) * TILE_SIZE)
       end
     end
   end
@@ -165,7 +171,7 @@ function Scene:draw()
       local bl = i == 1 or j == TILES_Y + 1 or self.tiles[i - 1][j]
       local br = i == TILES_X + 1 or j == TILES_Y + 1 or self.tiles[i][j]
       if tl and tr and bl and br then
-        Window.draw_rectangle((i - 0.5) * TILE_SIZE, (j - 0.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, {0, 0, 0})
+        Window.draw_rectangle((i - 1.5) * TILE_SIZE, (j - 1.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, {0, 0, 0})
       end
     end
   end
@@ -175,7 +181,7 @@ function Scene:draw()
   for i = 1, TILES_X do
     for j = 1, TILES_Y do
       if self.light[i][j] > 0 then
-        Window.draw_rectangle(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, {0, 0, 0, self.light[i][j]})
+        Window.draw_rectangle((i - 1) * TILE_SIZE, (j - 1) * TILE_SIZE, TILE_SIZE, TILE_SIZE, {0, 0, 0, self.light[i][j]})
       end
     end
   end

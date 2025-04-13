@@ -1,5 +1,3 @@
-require("src.traits.trigger_activator")
-
 RAMPS = {}
 
 PlayerCharacter = setmetatable({}, GameObject)
@@ -13,24 +11,24 @@ function PlayerCharacter.new()
 end
 
 function PlayerCharacter:set_position(col, row)
-  self.x = col * TILE_SIZE + 2
-  self.y = row * TILE_SIZE + 2
+  self.x = (col - 1) * TILE_SIZE + 2
+  self.y = (row - 1) * TILE_SIZE + 2
 end
 
 function PlayerCharacter:update(scene)
   local forces = Vector.new()
   if KB.down("left") then
     forces.x = -1
-    self.angle = -90
+    self.angle = -math.pi / 2
   elseif KB.down("right") then
     forces.x = 1
-    self.angle = 90
+    self.angle = math.pi / 2
   elseif KB.down("up") then
     forces.y = -1
     self.angle = 0
   elseif KB.down("down") then
     forces.y = 1
-    self.angle = 180
+    self.angle = math.pi
   end
   self:move(forces, scene:obstacles_for(self), RAMPS, true)
   scene:add_light(self, 3)
@@ -49,7 +47,7 @@ function PlayerCharacter:update(scene)
     end
   end
 
-  TriggerActivator.check_triggers(self, scene)
+  scene:check_triggers(self)
 end
 
 function PlayerCharacter:draw()

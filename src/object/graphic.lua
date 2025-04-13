@@ -6,7 +6,7 @@ function Graphic.new(col, row, args)
   -- TODO offsets depending on type
   local offset_x = 0
   local offset_y = 0
-  local self = BaseObject.new(col, row, args, col * TILE_SIZE + offset_x, row * TILE_SIZE + offset_y, "graphic/" .. type)
+  local self = BaseObject.new(col, row, args, offset_x, offset_y, 1, 1, "graphic/" .. type)
   setmetatable(self, Graphic)
   return self
 end

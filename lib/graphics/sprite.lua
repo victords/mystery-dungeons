@@ -54,7 +54,7 @@ function Sprite:animate_once(indices, interval, callback)
 
   if self.index_index == #indices then
     self.animate_once_control = 2
-    callback()
+    if callback then callback() end
   else
     self.index_index = self.index_index + 1
     self.img_index = indices[self.index_index]
