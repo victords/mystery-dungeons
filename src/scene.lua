@@ -156,7 +156,7 @@ function Scene:draw()
       local bl = i == 1 or j == TILES_Y + 1 or self.tiles[i - 1][j]
       local br = i == TILES_X + 1 or j == TILES_Y + 1 or self.tiles[i][j]
       if tl and tr and bl and br then
-        Window.draw_rectangle((i - 1.5) * TILE_SIZE, (j - 1.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, {0, 0, 0})
+        Window.draw_rectangle((i - 1.5) * TILE_SIZE, (j - 1.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, BG_COLOR)
       end
     end
   end

@@ -13,14 +13,10 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) 
     number distance = sqrt(pow(d_x, 2) + pow(d_y, 2));
     number light_source_radius = light_sources[i].z;
     if (distance < 0.75 * light_source_radius) {
-      alpha += 1.0;
-    } else if (distance < light_source_radius) {
-      alpha += 0.5;
-    }
-
-    if (alpha >= 1.0) {
       alpha = 1.0;
       break;
+    } else if (distance < light_source_radius) {
+      alpha = 0.5;
     }
   }
 

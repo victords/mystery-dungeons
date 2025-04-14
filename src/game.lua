@@ -32,6 +32,7 @@ Game = {
     if Game.transitioning then return end
 
     Window.draw(function ()
+      love.graphics.clear(BG_COLOR)
       Game.scene:draw()
       Game.player:draw()
 
