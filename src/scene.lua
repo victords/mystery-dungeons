@@ -36,8 +36,10 @@ function Scene.new(id)
   self.solids = {}
   self.triggers = {}
   self.triggered_by = {}
+  self.pushables = {}
   self.entrances = {}
   self.exits = {}
+  self.ramps = {}
 
   local content = love.filesystem.read("data/scene/" .. id .. ".txt")
   if content == nil and editor then return self end
@@ -61,6 +63,7 @@ function Scene.new(id)
         table.insert(self.objects, obj)
         if obj:is_trigger() then table.insert(self.triggers, obj) end
         if obj.solid then table.insert(self.solids, obj) end
+        if obj.pushable then table.insert(self.pushables, obj) end
         if obj.triggered_by_id then
           self.triggered_by[obj.triggered_by_id] = self.triggered_by[obj.triggered_by_id] or {}
           table.insert(self.triggered_by[obj.triggered_by_id], obj)
@@ -102,9 +105,9 @@ function Scene:obstacles_for(obj)
       end
     end
   end
-  for _, obj in ipairs(self.objects) do
-    if obj.solid then
-      table.insert(obstacles, obj)
+  for _, object in ipairs(self.objects) do
+    if object.solid and object ~= obj then
+      table.insert(obstacles, object)
     end
   end
   return obstacles
@@ -121,6 +124,27 @@ function Scene:check_triggers(obj)
   for _, trigger in ipairs(self.triggers) do
     if trigger:bounds():intersect(obj_bounds) and not trigger.active then
       self:on_trigger(trigger, obj)
+    end
+  end
+end
+
+function Scene:check_pushables(obj)
+  local obj_bounds = obj:bounds()
+  for _, pushable in ipairs(self.pushables) do
+    if pushable:bounds():intersect(obj_bounds) then
+      pushable:move(obj.speed, self:obstacles_for(pushable), self.ramps, true)
+      if pushable:bounds():intersect(obj_bounds) then
+        if obj.speed.x > 0 then
+          obj.x = pushable.x - obj.w
+        elseif obj.speed.x < 0 then
+          obj.x = pushable.x + pushable.w
+        elseif obj.speed.y > 0 then
+          obj.y = pushable.y - obj.h
+        elseif obj.speed.y < 0 then
+          obj.y = pushable.y + pushable.h
+        end
+      end
+      break
     end
   end
 end

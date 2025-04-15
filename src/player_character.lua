@@ -1,5 +1,3 @@
-RAMPS = {}
-
 PlayerCharacter = setmetatable({}, GameObject)
 PlayerCharacter.__index = PlayerCharacter
 
@@ -30,7 +28,7 @@ function PlayerCharacter:update(scene)
     forces.y = 1
     self.angle = math.pi
   end
-  self:move(forces, scene:obstacles_for(self), RAMPS, true)
+  self:move(forces, scene:obstacles_for(self), scene.ramps, true)
   scene:add_light(self, 3)
 
   if self.on_exit then
@@ -48,6 +46,7 @@ function PlayerCharacter:update(scene)
   end
 
   scene:check_triggers(self)
+  scene:check_pushables(self)
 end
 
 function PlayerCharacter:draw()
