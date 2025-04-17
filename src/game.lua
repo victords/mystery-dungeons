@@ -6,7 +6,7 @@ Game = {
   init = function ()
     Image.set_retro(true)
     Window.set_size(false, WINDOW_WIDTH, WINDOW_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT)
-    --Window.set_shader("shaders/main")
+    Window.set_shader("shaders/main")
     Game.scene = Scene.new(1)
     Game.scenes = { scene }
     Game.player = PlayerCharacter.new()
@@ -36,8 +36,8 @@ Game = {
       Game.scene:draw()
       Game.player:draw()
 
-      --Window.shader:send("light_sources", unpack(Game.scene.lights))
-      --Window.shader:send("light_source_count", #Game.scene.lights)
+      Window.shader:send("light_sources", unpack(Game.scene.lights))
+      Window.shader:send("light_source_count", #Game.scene.lights)
     end)
   end
 }
