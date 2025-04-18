@@ -11,7 +11,7 @@ function Lantern.new(col, row, args)
 end
 
 function Lantern:update(scene)
-  scene:add_light(self, 2)
+  scene:add_light(self, 21)
   self.timer = self.timer + 0.2
   if self.timer > 2 * math.pi then
     self.timer = 0.0

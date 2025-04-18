@@ -29,7 +29,6 @@ function PlayerCharacter:update(scene)
     self.angle = math.pi
   end
   self:move(forces, scene:obstacles_for(self), scene.ramps, true)
-  scene:add_light(self, 3)
 
   if self.on_exit then
     local exit_obj
@@ -45,6 +44,7 @@ function PlayerCharacter:update(scene)
     end
   end
 
+  scene:add_light(self, 30)
   scene:check_triggers(self)
   scene:check_pushables(self)
 end

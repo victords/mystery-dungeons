@@ -116,7 +116,7 @@ end
 function Scene:add_light(obj, radius)
   local x = obj.x + obj.w * 0.5
   local y = obj.y + obj.h * 0.5
-  table.insert(self.lights, {x, y, radius * TILE_SIZE})
+  table.insert(self.lights, {x, y, radius})
 end
 
 function Scene:check_triggers(obj)
