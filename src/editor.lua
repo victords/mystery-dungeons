@@ -244,7 +244,10 @@ Editor = {
     KB.update()
     Mouse.update()
     for _, c in ipairs(Editor.controls) do c:update() end
-    if not Mouse.over(0, 0, SCENE_DISPLAY_WIDTH, SCENE_DISPLAY_HEIGHT) then return end
+    if not Mouse.over(0, 0, SCENE_DISPLAY_WIDTH, SCENE_DISPLAY_HEIGHT) then
+      Editor.mouse_pos = nil
+      return
+    end
 
     local col = math.floor(Mouse.x / (TILE_SIZE * SCENE_SCALE)) + 1
     local row = math.floor(Mouse.y / (TILE_SIZE * SCENE_SCALE)) + 1
@@ -263,6 +266,8 @@ Editor = {
     elseif Mouse.down("right") then
       Editor.scene:delete_at(col, row)
     end
+
+    Editor.mouse_pos = {col, row}
   end,
   draw = function ()
     love.graphics.clear(0, 0, 0)
@@ -274,6 +279,11 @@ Editor = {
     end
     for i = 1, TILES_Y - 1 do
       Window.draw_rectangle(0, i * TILE_SIZE * SCENE_SCALE, SCENE_DISPLAY_WIDTH, 1, {0, 0, 0, 0.5})
+    end
+
+    if Editor.mouse_pos then
+      local text = Editor.mouse_pos[1] .. "," .. Editor.mouse_pos[2]
+      Editor.font:draw_text(text, Mouse.x - Editor.font:text_width(text), Mouse.y - Editor.font.height)
     end
   end,
   set_tool = function(tool)
