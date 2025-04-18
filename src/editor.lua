@@ -150,6 +150,9 @@ end
 Editor = {
   init = function ()
     Window.set_size(false, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT)
+    if not love.filesystem.getInfo("editor") then
+      love.filesystem.createDirectory("editor")
+    end
 
     Editor.scene = EditorScene.new(1)
     Editor.exit_dest_scene = 1
@@ -229,7 +232,7 @@ Editor = {
         end
       end),
       Button.new(10, 470, {h = 40, anchor = "top_right", font = font, text = 'Save', scale = 2}, function ()
-        love.filesystem.write(Editor.level_id .. ".txt", Editor.scene:serialize())
+        love.filesystem.write("editor/" .. Editor.level_id .. ".txt", Editor.scene:serialize())
       end),
       Button.new(10, 520, {h = 40, anchor = "top_right", font = font, text = 'Load', scale = 2}, function ()
         Editor.scene = EditorScene.new(Editor.level_id)
