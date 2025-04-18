@@ -12,7 +12,7 @@ end
 
 function Lantern:update(scene)
   scene:add_light(self, 2)
-  self.timer = self.timer + 0.05
+  self.timer = self.timer + 0.2
   if self.timer > 2 * math.pi then
     self.timer = 0.0
   end

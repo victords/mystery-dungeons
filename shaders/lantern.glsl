@@ -1,10 +1,14 @@
 uniform vec2 image_size;
 uniform vec3 light_color = vec3(1, 1, 1);
 uniform float light_min_radius = 10.0;
-uniform float light_max_radius = 11.0;
+uniform float light_max_radius = 12.0;
+uniform float light_min_alpha = 0.6;
+uniform float light_max_alpha = 0.8;
 uniform float time = 0.0;
 
-float current_radius = light_min_radius + 0.5 * (1 - cos(time)) * (light_max_radius - light_min_radius);
+float factor = 0.5 * (1 - cos(time));
+float current_radius = light_min_radius + factor * (light_max_radius - light_min_radius);
+float current_alpha = light_min_alpha + factor * (light_max_alpha - light_min_alpha);
 
 #ifdef VERTEX
 vec4 position(mat4 transform_projection, vec4 vertex_position) {
@@ -27,7 +31,10 @@ vec4 position(mat4 transform_projection, vec4 vertex_position) {
 vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
   vec2 texture_pos = vec2(texture_coords.x * 2 * current_radius, texture_coords.y * 2 * current_radius);
   float distance = sqrt(pow(texture_pos.x - current_radius, 2) + pow(texture_pos.y - current_radius, 2));
-  float alpha = distance <= current_radius * 0.8 ? 0.5 : (distance <= current_radius ? 0.25 : 0.0);
+  float alpha =
+    distance <= current_radius * 0.5 ? current_alpha :
+    distance <= current_radius * 0.8 ? 0.5 * current_alpha :
+    distance <= current_radius ? 0.25 * current_alpha : 0.0;
   vec2 image_offset = vec2(current_radius - 0.5 * image_size.x, current_radius - 0.5 * image_size.y);
   if (texture_pos.x < image_offset.x ||
       texture_pos.y < image_offset.y ||
