@@ -10,8 +10,6 @@ function Label.new(x, y, options)
 
   local self = Component.new(x, y, w, h, options)
   setmetatable(self, Label)
-  self.font = font
-  self.text = text
   self.scale = scale
   self.color = options.color or options.text_color or {1, 1, 1}
   return self

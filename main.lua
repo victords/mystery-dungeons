@@ -1,10 +1,11 @@
 require("lib.index")
-require("src.game")
---require("src.editor")
+--require("src.game")
+require("src.editor")
 
---editor = true
+editor = true
 
 function love.load()
+  Image.set_retro(true)
   controller = editor and Editor or Game
   controller.init()
 end

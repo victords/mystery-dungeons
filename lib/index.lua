@@ -29,6 +29,16 @@ Res = {
     Res.imgs[path] = img
     return img
   end,
+  img_font = function(path, characters, char_spacing, extension)
+    local key = path .. "_" .. "img" .. "_" .. char_spacing
+    if Res.fonts[key] then return Res.fonts[key] end
+
+    extension = extension or "png"
+    local full_path = Res.prefix .. Res.font_prefix .. path .. "." .. extension
+    local font = ImageFont.new(full_path, characters, char_spacing)
+    Res.fonts[key] = font
+    return font
+  end,
   song = function(path, extension)
     if Res.songs[path] then return Res.songs[path] end
 
@@ -79,6 +89,15 @@ Utils = {
       table.insert(t, s)
     end
     return t
+  end,
+  join = function(table, separator)
+    separator = separator or ""
+    local result = ""
+    for i, value in ipairs(table) do
+      if i > 1 then result = result .. separator end
+      result = result .. value
+    end
+    return result
   end,
   map = function(table, mapper)
     local mapped = {}
