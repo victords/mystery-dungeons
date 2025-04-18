@@ -60,6 +60,7 @@ function Scene.new(id)
         local rest = {}
         for i = 4, #data do table.insert(rest, data[i]) end
         local obj = _G[data[1]].new(tonumber(data[2]), tonumber(data[3]), rest)
+        obj.class_name = data[1]
         table.insert(self.objects, obj)
         if obj:is_trigger() then table.insert(self.triggers, obj) end
         if obj.solid then table.insert(self.solids, obj) end
