@@ -9,7 +9,7 @@ EditorScene = setmetatable({}, Scene)
 EditorScene.__index = EditorScene
 
 function EditorScene.new(id)
-  local self = Scene.new(id)
+  local self = Scene.new(id, true)
   setmetatable(self, EditorScene)
   self.canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
   return self

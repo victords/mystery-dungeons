@@ -25,8 +25,9 @@ end
 Scene = {}
 Scene.__index = Scene
 
-function Scene.new(id)
+function Scene.new(id, skip_shader)
   local self = setmetatable({}, Scene)
+  self.id = id
   self.tiles = {}
   for i = 1, TILES_X do
     self.tiles[i] = {}
@@ -85,6 +86,10 @@ function Scene.new(id)
     for j = 1, TILES_Y do
       self:set_wall_tile(i, j)
     end
+  end
+
+  if not skip_shader then
+    Window.set_shader("shaders/main")
   end
 
   return self
@@ -163,6 +168,7 @@ end
 function Scene:update()
   self.lights = {}
   for _, obj in ipairs(self.objects) do obj:update(self) end
+
 end
 
 function Scene:draw()
@@ -187,6 +193,11 @@ function Scene:draw()
   end
 
   for _, obj in ipairs(self.objects) do obj:draw() end
+
+  if Window.shader then
+    Window.shader:send("light_sources", unpack(self.lights))
+    Window.shader:send("light_source_count", #self.lights)
+  end
 end
 
 function Scene:is_wall(i, j)
