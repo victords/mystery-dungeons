@@ -5,11 +5,13 @@ Res = {
   song_prefix = "song/",
   sound_prefix = "sound/",
   tileset_prefix = "img/",
+  shader_prefix = "shaders/",
   fonts = {},
   imgs = {},
   songs = {},
   sounds = {},
   tilesets = {},
+  shaders = {},
   font = function(path, size, extension)
     local key = path .. "_" .. size
     if Res.fonts[key] then return Res.fonts[key] end
@@ -65,6 +67,15 @@ Res = {
     local tileset = Tileset.new(full_path, cols, rows)
     Res.tilesets[path] = tileset
     return tileset
+  end,
+  shader = function(path, extension)
+    if Res.shaders[path] then return Res.shaders[path] end
+
+    extension = extension or "glsl"
+    local full_path = Res.shader_prefix .. path .. "." .. extension
+    local shader = love.graphics.newShader(full_path)
+    Res.shaders[path] = shader
+    return shader
   end
 }
 

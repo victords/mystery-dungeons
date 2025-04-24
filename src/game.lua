@@ -1,6 +1,7 @@
 require("src.constants")
 require("src.scene")
 require("src.player_character")
+require("src.world_map")
 
 SCENE_MEMORY_THRESHOLD = 5
 
@@ -9,17 +10,21 @@ Game = {
     Window.set_size(false, WINDOW_WIDTH, WINDOW_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT)
     Game.scene = Scene.new(1)
     Game.scenes = {[1] = {0, Game.scene}}
+    Game.known_scenes = {[1] = Game.scene}
     Game.transitions = {}
     Game.player = PlayerCharacter.new()
     local entrance = Game.scene.entrances[1]
     Game.player:set_position(entrance[1], entrance[2])
     Game.player.on_exit = Game.on_player_exit
+    Game.world_map = WorldMap.new(Game.known_scenes)
   end,
   on_player_exit = function (exit_obj)
     local dest_scene_id = exit_obj.dest_scene
     Game.scenes[dest_scene_id] = Game.scenes[dest_scene_id] or {0, Scene.new(dest_scene_id)}
     Game.update_scene_distances(Game.scene.id, dest_scene_id)
     Game.scene = Game.scenes[dest_scene_id][2]
+    Game.known_scenes[dest_scene_id] = Game.scenes[dest_scene_id][2]
+    Game.world_map.current_scene_id = dest_scene_id
     local entrance = Game.scene.entrances[exit_obj.dest_entrance]
     Game.player:set_position(entrance[1], entrance[2])
     Game.transitioning = true
@@ -70,9 +75,9 @@ Game = {
     if Game.transitioning then return end
 
     Window.draw(function ()
-      love.graphics.clear(BG_COLOR)
       Game.scene:draw()
       Game.player:draw()
+      Game.world_map:draw()
     end)
   end
 }

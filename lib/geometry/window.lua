@@ -53,9 +53,8 @@ function Window.toggle_fullscreen()
   Window.set_size(not currently_fullscreen, Window.width, Window.height, Window.reference_width, Window.reference_height)
 end
 
-function Window.set_shader(path, extension)
-  extension = extension or "glsl"
-  Window.shader = love.graphics.newShader(path .. "." .. extension)
+function Window.set_shader(path)
+  Window.shader = Res.shader(path)
   if Window.canvas == nil then
     Window.canvas = love.graphics.newCanvas(Window.reference_width, Window.reference_height)
   end

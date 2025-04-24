@@ -88,8 +88,9 @@ function Scene.new(id, skip_shader)
     end
   end
 
+  self.canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
   if not skip_shader then
-    Window.set_shader("shaders/main")
+    self.shader = Res.shader("main")
   end
 
   return self
@@ -168,10 +169,12 @@ end
 function Scene:update()
   self.lights = {}
   for _, obj in ipairs(self.objects) do obj:update(self) end
-
 end
 
 function Scene:draw()
+  love.graphics.setCanvas(self.canvas)
+  love.graphics.clear(BG_COLOR)
+
   for i = 1, TILES_X do
     for j = 1, TILES_Y do
       if self:is_wall(i, j) then
@@ -194,10 +197,14 @@ function Scene:draw()
 
   for _, obj in ipairs(self.objects) do obj:draw() end
 
-  if Window.shader then
-    Window.shader:send("light_sources", unpack(self.lights))
-    Window.shader:send("light_source_count", #self.lights)
+  love.graphics.setCanvas(Window.canvas)
+  if self.shader then
+    self.shader:send("light_sources", unpack(self.lights))
+    self.shader:send("light_source_count", #self.lights)
+    love.graphics.setShader(self.shader)
   end
+  love.graphics.draw(self.canvas, 0, 0)
+  if self.shader then love.graphics.setShader() end
 end
 
 function Scene:is_wall(i, j)
