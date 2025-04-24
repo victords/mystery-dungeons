@@ -20,11 +20,22 @@ Game = {
   end,
   on_player_exit = function (exit_obj)
     local dest_scene_id = exit_obj.dest_scene
-    Game.scenes[dest_scene_id] = Game.scenes[dest_scene_id] or {0, Scene.new(dest_scene_id)}
+    local col = Game.scene.map_col
+    local row = Game.scene.map_row
+    if exit_obj.dir == 0 then
+      row = row - 1
+    elseif exit_obj.dir == 1 then
+      col = col + 1
+    elseif exit_obj.dir == 2 then
+      row = row + 1
+    else
+      col = col - 1
+    end
+    Game.scenes[dest_scene_id] = Game.scenes[dest_scene_id] or {0, Scene.new(dest_scene_id, false, col, row)}
     Game.update_scene_distances(Game.scene.id, dest_scene_id)
     Game.scene = Game.scenes[dest_scene_id][2]
-    Game.known_scenes[dest_scene_id] = Game.scenes[dest_scene_id][2]
-    Game.world_map.current_scene_id = dest_scene_id
+    Game.known_scenes[dest_scene_id] = Game.scene
+    Game.world_map:set_current_scene(Game.scene)
     local entrance = Game.scene.entrances[exit_obj.dest_entrance]
     Game.player:set_position(entrance[1], entrance[2])
     Game.transitioning = true
@@ -70,6 +81,7 @@ Game = {
     Game.transitioning = false
     Game.scene:update()
     Game.player:update(Game.scene)
+    Game.world_map:update()
   end,
   draw = function ()
     if Game.transitioning then return end

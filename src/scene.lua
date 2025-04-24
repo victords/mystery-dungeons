@@ -17,6 +17,7 @@ function Exit.new(col, row, dest_scene, dest_entrance)
   self.y = (row - 1) * TILE_SIZE + 2
   self.w = TILE_SIZE - 4
   self.h = TILE_SIZE - 4
+  self.dir = row == 1 and 0 or (col == TILES_X and 1 or (row == TILES_Y and 2 or 3))
   self.dest_scene = dest_scene
   self.dest_entrance = dest_entrance
   return self
@@ -25,9 +26,11 @@ end
 Scene = {}
 Scene.__index = Scene
 
-function Scene.new(id, skip_shader)
+function Scene.new(id, skip_shader, map_col, map_row)
   local self = setmetatable({}, Scene)
   self.id = id
+  self.map_col = map_col or 1
+  self.map_row = map_row or 1
   self.tiles = {}
   for i = 1, TILES_X do
     self.tiles[i] = {}
