@@ -81,7 +81,7 @@ Game = {
     Game.transitioning = false
     Game.scene:update()
     Game.player:update(Game.scene)
-    Game.world_map:update()
+    Game.world_map:update(Game.player)
   end,
   draw = function ()
     if Game.transitioning then return end
