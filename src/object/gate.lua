@@ -4,8 +4,9 @@ Gate.__index = Gate
 function Gate.new(col, row, args)
   local self = BaseObject.new(col, row, args, 0, 0, TILE_SIZE, TILE_SIZE, "object/gate", Vector.new(), 2, 2)
   setmetatable(self, Gate)
-  self.solid = args[2] == nil
   self.triggered_by_id = args[1]
+  self.vertical = args[2] == nil or not args[2]:find("h")
+  self.solid = args[2] == nil or not args[2]:find("o")
   if not self.solid then self.img_index = 4 end
   return self
 end
@@ -20,4 +21,8 @@ function Gate:update(scene)
   if self.animation_indices == nil then return end
 
   self:animate_once(self.animation_indices, 7, function () self.animation_indices = nil end)
+end
+
+function Gate:draw()
+  GameObject.draw(self, 1, 1, nil, self.vertical and 0 or math.pi * 0.5)
 end
