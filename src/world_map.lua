@@ -23,16 +23,16 @@ function WorldMap:set_current_scene(scene)
 end
 
 function WorldMap:update(player)
-  self.player_pos = {math.floor((player.x + 0.5 * player.w) / TILE_SIZE), math.floor((player.y + 0.5 * player.h) / TILE_SIZE)}
   if KB.pressed("tab") then
     self.visible = not self.visible
   end
 
-  if self.visible then
-    self.player_alpha = self.player_alpha + 0.016667
-    if self.player_alpha >= 1 then
-      self.player_alpha = -1
-    end
+  if not self.visible then return end
+
+  self.player_pos = {math.floor((player.x + 0.5 * player.w) / TILE_SIZE), math.floor((player.y + 0.5 * player.h) / TILE_SIZE)}
+  self.player_alpha = self.player_alpha + 0.016667
+  if self.player_alpha >= 1 then
+    self.player_alpha = -1
   end
 end
 
@@ -55,7 +55,7 @@ function WorldMap:draw()
         end
 
         if i == self.current_col and j == self.current_row then
-          local alpha = 0.3 + 0.7 * (self.player_alpha < 0 and -self.player_alpha or self.player_alpha)
+          local alpha = 0.5 + 0.5 * (self.player_alpha < 0 and -self.player_alpha or self.player_alpha)
           Window.draw_rectangle(x + self.player_pos[1], y + self.player_pos[2], 1, 1, {1, 1, 1, alpha})
         end
       end
