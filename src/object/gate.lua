@@ -4,8 +4,9 @@ Gate.__index = Gate
 function Gate.new(col, row, args)
   local self = BaseObject.new(col, row, args, 0, 0, TILE_SIZE, TILE_SIZE, "object/gate", Vector.new(), 2, 2)
   setmetatable(self, Gate)
-  self.solid = true
+  self.solid = args[2] == nil
   self.triggered_by_id = args[1]
+  if not self.solid then self.img_index = 4 end
   return self
 end
 
