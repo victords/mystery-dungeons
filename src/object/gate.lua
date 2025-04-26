@@ -9,12 +9,14 @@ function Gate.new(col, row, args)
   return self
 end
 
-function Gate:on_trigger(_trigger, _activator)
-  self.solid = false
+function Gate:on_trigger()
+  self.solid = not self.solid
+  self.animation_indices = self.solid and {3, 2, 1} or {2, 3, 4}
+  self:reset_animation()
 end
 
 function Gate:update(scene)
-  if self.solid then return end
+  if self.animation_indices == nil then return end
 
-  self:animate_once({2, 3, 4}, 7)
+  self:animate_once(self.animation_indices, 7, function () self.animation_indices = nil end)
 end

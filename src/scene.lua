@@ -26,9 +26,10 @@ end
 Scene = {}
 Scene.__index = Scene
 
-function Scene.new(id, skip_shader, map_col, map_row)
+function Scene.new(id, editor, map_col, map_row)
   local self = setmetatable({}, Scene)
   self.id = id
+  self.editor = editor
   self.map_col = map_col or 1
   self.map_row = map_row or 1
   self.tiles = {}
@@ -92,7 +93,7 @@ function Scene.new(id, skip_shader, map_col, map_row)
   end
 
   self.canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
-  if not skip_shader then
+  if not editor then
     self.shader = Res.shader("main")
   end
 
@@ -130,10 +131,14 @@ function Scene:add_light(obj, radius)
 end
 
 function Scene:check_triggers(obj)
-  local obj_bounds = obj:bounds()
   for _, trigger in ipairs(self.triggers) do
-    if trigger:bounds():intersect(obj_bounds) and not trigger.active then
-      self:on_trigger(trigger, obj)
+    if trigger:is_triggered(obj) then
+      if not trigger:activate(obj) then return end
+      if self.triggered_by[trigger.id] == nil then return end
+
+      for _, obj in ipairs(self.triggered_by[trigger.id]) do
+        obj:on_trigger()
+      end
     end
   end
 end
@@ -156,16 +161,6 @@ function Scene:check_pushables(obj)
       end
       break
     end
-  end
-end
-
-function Scene:on_trigger(trigger, activator)
-  if trigger.active then return end
-  if not trigger:activate(activator) then return end
-  if self.triggered_by[trigger.id] == nil then return end
-
-  for _, obj in ipairs(self.triggered_by[trigger.id]) do
-    obj:on_trigger(trigger, activator)
   end
 end
 
@@ -199,6 +194,8 @@ function Scene:draw()
   end
 
   for _, obj in ipairs(self.objects) do obj:draw() end
+
+  if self.editor then return end
 
   love.graphics.setCanvas(Window.canvas)
   if self.shader then

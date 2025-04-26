@@ -63,7 +63,7 @@ function Sprite:animate_once(indices, interval, callback)
 end
 
 function Sprite:reset_animation(img_index)
-  self.img_index = img_index
+  self.img_index = img_index or self.img_index
   self.index_index = 1
   self.anim_timer = 0
   self.animate_once_control = 0

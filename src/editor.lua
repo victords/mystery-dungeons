@@ -11,14 +11,10 @@ EditorScene.__index = EditorScene
 function EditorScene.new(id)
   local self = Scene.new(id, true)
   setmetatable(self, EditorScene)
-  self.canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
   return self
 end
 
 function EditorScene:draw()
-  love.graphics.setCanvas(self.canvas)
-  love.graphics.clear(BG_COLOR)
-
   Scene.draw(self)
 
   for i = 1, TILES_X do
