@@ -100,12 +100,27 @@ function EditorScene:delete_at(col, row)
   end
 end
 
+function EditorScene:clear()
+  self.tiles = {}
+  for i = 1, TILES_X do
+    self.tiles[i] = {}
+  end
+  self.objects = {}
+  self.solids = {}
+  self.triggers = {}
+  self.triggered_by = {}
+  self.pushables = {}
+  self.entrances = {}
+  self.exits = {}
+end
+
 function EditorScene:serialize()
   local lines = {
     Utils.join(Utils.map(self.entrances, function(e) return e[1] .. "," .. e[2] end), "|"),
     Utils.join(Utils.map(self.exits, function(e) return e.col .. "," .. e.row .. "," .. e.dest_scene .. "," .. e.dest_entrance end), "|"),
     Utils.join(Utils.map(self.objects, function(o) return o.class_name .. "," .. o.col .. "," .. o.row .. "," .. (o.args and Utils.join(o.args, ",") or "") end), "|"),
   }
+  if lines[3] == "" then lines[3] = "_" end
   for j = 1, TILES_Y do
     local line = ""
     for i = 1, TILES_X do
@@ -233,6 +248,9 @@ Editor = {
       Button.new(10, 520, {h = 40, anchor = "top_right", font = font, text = 'Load', scale = 2}, function ()
         Editor.scene = EditorScene.new(Editor.level_id)
       end),
+      Button.new(10, 570, {h = 40, anchor = "top_right", font = font, text = "Clear", scale = 2}, function ()
+        Editor.scene:clear()
+      end)
     }
     Editor.font = font
   end,
