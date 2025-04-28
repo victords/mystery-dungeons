@@ -13,10 +13,10 @@ function Exit.new(col, row, dest_scene, dest_entrance)
   local self = setmetatable({}, Exit)
   self.col = col
   self.row = row
-  self.x = (col - 1) * TILE_SIZE -- col == TILES_X and SCREEN_WIDTH - 1 or (col - 1) * TILE_SIZE
-  self.y = (row - 1) * TILE_SIZE -- row == TILES_Y and SCREEN_HEIGHT - 1 or (row - 1) * TILE_SIZE
-  self.w = TILE_SIZE -- (col == 1 or col == TILES_X) and 1 or TILE_SIZE
-  self.h = TILE_SIZE -- (row == 1 or row == TILES_Y) and 1 or TILE_SIZE
+  self.x = col == TILES_X and SCREEN_WIDTH - 1 or (col - 1) * TILE_SIZE
+  self.y = row == TILES_Y and SCREEN_HEIGHT - 1 or (row - 1) * TILE_SIZE
+  self.w = (col == 1 or col == TILES_X) and 1 or TILE_SIZE
+  self.h = (row == 1 or row == TILES_Y) and 1 or TILE_SIZE
   self.dir = row == 1 and 0 or (col == TILES_X and 1 or (row == TILES_Y and 2 or 3))
   self.dest_scene = dest_scene
   self.dest_entrance = dest_entrance

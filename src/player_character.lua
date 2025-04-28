@@ -16,16 +16,16 @@ end
 function PlayerCharacter:update(scene)
   local forces = Vector.new()
   if KB.down("left") then
-    forces.x = -10
+    forces.x = -1
     self.angle = -math.pi / 2
   elseif KB.down("right") then
-    forces.x = 10
+    forces.x = 1
     self.angle = math.pi / 2
   elseif KB.down("up") then
-    forces.y = -10
+    forces.y = -1
     self.angle = 0
   elseif KB.down("down") then
-    forces.y = 10
+    forces.y = 1
     self.angle = math.pi
   end
   self:move(forces, scene:obstacles_for(self), scene.ramps, true)

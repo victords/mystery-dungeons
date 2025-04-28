@@ -16,10 +16,10 @@ function Lantern:update(scene)
   if self.timer > 2 * math.pi then
     self.timer = 0.0
   end
+  self.shader:send("time", self.timer)
 end
 
 function Lantern:draw()
-  self.shader:send("time", self.timer)
   love.graphics.setShader(self.shader)
   GameObject.draw(self)
   love.graphics.setShader()

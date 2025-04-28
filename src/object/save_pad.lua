@@ -1,0 +1,24 @@
+SavePad = setmetatable({}, BaseObject)
+SavePad.__index = SavePad
+
+function SavePad.new(col, row, args)
+  local self = BaseObject.new(col, row, args, 0, 0, TILE_SIZE, TILE_SIZE, "object/save_pad")
+  setmetatable(self, SavePad)
+  self.shader = love.graphics.newShader("shaders/pulse.glsl")
+  self.timer = 0
+  return self
+end
+
+function SavePad:update(scene)
+  self.timer = self.timer + love.timer.getDelta()
+  if self.timer > 2 then
+    self.timer = self.timer - 4
+  end
+  self.shader:send("time", self.timer)
+end
+
+function SavePad:draw()
+  love.graphics.setShader(self.shader)
+  GameObject.draw(self)
+  love.graphics.setShader()
+end
