@@ -165,6 +165,11 @@ function Scene:check_pushables(obj)
 end
 
 function Scene:update()
+  if KB.pressed("r") then
+    self.on_reset()
+    return
+  end
+
   self.lights = {}
   for _, obj in ipairs(self.objects) do obj:update(self) end
 end

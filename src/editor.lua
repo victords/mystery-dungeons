@@ -120,7 +120,9 @@ function EditorScene:serialize()
     Utils.join(Utils.map(self.exits, function(e) return e.col .. "," .. e.row .. "," .. e.dest_scene .. "," .. e.dest_entrance end), "|"),
     Utils.join(Utils.map(self.objects, function(o) return o.class_name .. "," .. o.col .. "," .. o.row .. "," .. (o.args and Utils.join(o.args, ",") or "") end), "|"),
   }
-  if lines[3] == "" then lines[3] = "_" end
+  for i = 1, 3 do
+    if lines[i] == "" then lines[i] = "_" end
+  end
   for j = 1, TILES_Y do
     local line = ""
     for i = 1, TILES_X do
