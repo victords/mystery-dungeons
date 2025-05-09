@@ -1,12 +1,19 @@
-SavePad = setmetatable({}, BaseObject)
+SavePad = setmetatable({}, Trigger)
 SavePad.__index = SavePad
 
 function SavePad.new(id, col, row, args)
-  local self = BaseObject.new(id, col, row, args, 0, 0, TILE_SIZE, TILE_SIZE, "object/save_pad")
+  local self = Trigger.new(id, col, row, args, 0, 0, TILE_SIZE, TILE_SIZE, "object/save_pad")
   setmetatable(self, SavePad)
   self.shader = love.graphics.newShader("shaders/pulse.glsl")
   self.timer = 0
+  self.trigger_on_touch = false
+  self.trigger_key = "space"
+  self.global_trigger_type = "save"
   return self
+end
+
+function SavePad:activate(_activator)
+  return true
 end
 
 function SavePad:update(scene)

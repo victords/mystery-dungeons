@@ -136,6 +136,10 @@ function Scene:check_triggers(obj)
   for _, trigger in ipairs(self.triggers) do
     if trigger:is_triggered(obj) then
       if not trigger:activate(obj) then return end
+      if trigger.global_trigger_type then
+        self.on_trigger(trigger.global_trigger_type, trigger.global_trigger_args)
+        return
+      end
       if self.triggered_by[trigger.trigger_id] == nil then return end
 
       for _, obj in ipairs(self.triggered_by[trigger.trigger_id]) do

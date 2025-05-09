@@ -68,7 +68,7 @@ end
 function EditorScene:add_object(col, row, class_name, args)
   if self:is_wall(col, row) or self:existing_object(col, row) then return end
 
-  local obj = _G[class_name].new(col, row, Utils.split(args, ","))
+  local obj = _G[class_name].new(nil, col, row, Utils.split(args, ","))
   obj.class_name = class_name
   table.insert(self.objects, obj)
 end

@@ -22,6 +22,7 @@ Game = {
     Game.scenes[id] = Game.scenes[id] or Scene.new(id, false, col, row)
     Game.scene = Game.scenes[id]
     Game.scene.on_reset = Game.on_scene_reset
+    Game.scene.on_trigger = Game.on_trigger
   end,
   on_player_exit = function (exit_obj)
     local col = Game.scene.map_col
@@ -47,6 +48,11 @@ Game = {
     Game.set_scene(Game.scene.id)
     Game.player:set_position(Game.current_entrance[1], Game.current_entrance[2])
     Game.transitioning = true
+  end,
+  on_trigger = function(type, args)
+    if type == "save" then
+      print("saving game...")
+    end
   end,
   update = function ()
     KB.update()
