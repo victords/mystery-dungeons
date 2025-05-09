@@ -170,6 +170,17 @@ function Scene:check_pushables(obj)
   end
 end
 
+function Scene:get_save_data()
+  local save_data = ""
+  for _, obj in ipairs(self.objects) do
+    local obj_data = obj:get_save_data()
+    if obj_data then
+      save_data = save_data .. obj_data .. "|"
+    end
+  end
+  return save_data:sub(1, -2)
+end
+
 function Scene:update()
   if KB.pressed("r") then
     self.on_reset()

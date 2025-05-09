@@ -11,6 +11,7 @@ function BaseObject.new(id, col, row, args, offset_x, offset_y, w, h, img_path, 
   self.row = row
   self.args = args
   self.solid = false
+  self.save_attributes = nil
   return self
 end
 
@@ -18,4 +19,9 @@ function BaseObject:update(_scene) end
 
 function BaseObject:is_trigger()
   return false
+end
+
+function BaseObject:get_save_data()
+  if self.save_attributes == nil then return nil end
+  return self.id .. ":" .. Utils.join(Utils.map(self.save_attributes, function(k) return k .. "=" .. tostring(self[k]) end), ",")
 end

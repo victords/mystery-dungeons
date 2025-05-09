@@ -51,8 +51,16 @@ Game = {
   end,
   on_trigger = function(type, args)
     if type == "save" then
-      print("saving game...")
+      Game.save()
     end
+  end,
+  save = function()
+    local file = love.filesystem.newFile("save")
+    file:open("w")
+    for id, scene in pairs(Game.scenes) do
+      file:write(id .. ":" .. scene:get_save_data() .. "\n")
+    end
+    file:close()
   end,
   update = function ()
     KB.update()
