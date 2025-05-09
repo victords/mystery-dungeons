@@ -1,8 +1,8 @@
 Gate = setmetatable({}, BaseObject)
 Gate.__index = Gate
 
-function Gate.new(col, row, args)
-  local self = BaseObject.new(col, row, args, 0, 0, TILE_SIZE, TILE_SIZE, "object/gate", Vector.new(), 2, 2)
+function Gate.new(id, col, row, args)
+  local self = BaseObject.new(id, col, row, args, 0, 0, TILE_SIZE, TILE_SIZE, "object/gate", Vector.new(), 2, 2)
   setmetatable(self, Gate)
   self.triggered_by_id = args[1]
   self.vertical = args[2] == nil or not args[2]:find("h")

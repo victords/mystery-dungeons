@@ -1,8 +1,8 @@
 Lantern = setmetatable({}, BaseObject)
 Lantern.__index = Lantern
 
-function Lantern.new(col, row, args)
-  local self = BaseObject.new(col, row, args, 0, 0, TILE_SIZE, TILE_SIZE, "object/lantern")
+function Lantern.new(id, col, row, args)
+  local self = BaseObject.new(id, col, row, args, 0, 0, TILE_SIZE, TILE_SIZE, "object/lantern")
   setmetatable(self, Lantern)
   self.shader = love.graphics.newShader("shaders/lantern.glsl")
   self.shader:send("image_size", {self.img.width, self.img.height});

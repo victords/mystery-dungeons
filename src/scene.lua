@@ -26,7 +26,7 @@ end
 Scene = {}
 Scene.__index = Scene
 
-function Scene.new(id, editor, map_col, map_row)
+function Scene.new(id, editor, map_col, map_row, save_data)
   local self = setmetatable({}, Scene)
   self.id = id
   self.editor = editor
@@ -50,6 +50,7 @@ function Scene.new(id, editor, map_col, map_row)
   if content == nil and editor then return self end
 
   local lines = Utils.split(content, "\r\n")
+  local object_id = 1
   for j, line in ipairs(lines) do
     if j == 1 and line ~= "_" then
       for _, e in ipairs(Utils.split(line, "|")) do
@@ -64,7 +65,7 @@ function Scene.new(id, editor, map_col, map_row)
       for _, data in ipairs(obj_data) do
         local rest = {}
         for i = 4, #data do table.insert(rest, data[i]) end
-        local obj = _G[data[1]].new(tonumber(data[2]), tonumber(data[3]), rest)
+        local obj = _G[data[1]].new(object_id, tonumber(data[2]), tonumber(data[3]), rest)
         obj.class_name = data[1]
         table.insert(self.objects, obj)
         if obj:is_trigger() then table.insert(self.triggers, obj) end
@@ -74,6 +75,7 @@ function Scene.new(id, editor, map_col, map_row)
           self.triggered_by[obj.triggered_by_id] = self.triggered_by[obj.triggered_by_id] or {}
           table.insert(self.triggered_by[obj.triggered_by_id], obj)
         end
+        object_id = object_id + 1
       end
     elseif j > 3 then
       local row = j - 3
@@ -134,9 +136,9 @@ function Scene:check_triggers(obj)
   for _, trigger in ipairs(self.triggers) do
     if trigger:is_triggered(obj) then
       if not trigger:activate(obj) then return end
-      if self.triggered_by[trigger.id] == nil then return end
+      if self.triggered_by[trigger.trigger_id] == nil then return end
 
-      for _, obj in ipairs(self.triggered_by[trigger.id]) do
+      for _, obj in ipairs(self.triggered_by[trigger.trigger_id]) do
         obj:on_trigger()
       end
     end

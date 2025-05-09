@@ -1,8 +1,8 @@
 SavePad = setmetatable({}, BaseObject)
 SavePad.__index = SavePad
 
-function SavePad.new(col, row, args)
-  local self = BaseObject.new(col, row, args, 0, 0, TILE_SIZE, TILE_SIZE, "object/save_pad")
+function SavePad.new(id, col, row, args)
+  local self = BaseObject.new(id, col, row, args, 0, 0, TILE_SIZE, TILE_SIZE, "object/save_pad")
   setmetatable(self, SavePad)
   self.shader = love.graphics.newShader("shaders/pulse.glsl")
   self.timer = 0
