@@ -1,10 +1,11 @@
 Lantern = setmetatable({}, BaseObject)
 Lantern.__index = Lantern
 
+Lantern.shader = love.graphics.newShader("shaders/lantern.glsl")
+
 function Lantern.new(id, col, row, args)
   local self = BaseObject.new(id, col, row, args, 0, 0, TILE_SIZE, TILE_SIZE, "object/lantern")
   setmetatable(self, Lantern)
-  self.shader = love.graphics.newShader("shaders/lantern.glsl")
   self.shader:send("image_size", {self.img.width, self.img.height});
   self.timer = 0.0
   return self

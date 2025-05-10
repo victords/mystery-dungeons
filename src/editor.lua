@@ -184,7 +184,7 @@ Editor = {
     Editor.object_index = 1
     Editor.level_id = 1
 
-    local font = Res.img_font("font", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÁÉÍÓÚÀÃÕÂÊÔÑÇáéíóúàãõâêôñç0123456789.,:;!?¡¿/\\()[]+-%'\"←→∞$#<>", 1)
+    local font = Res.img_font("font", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÁÉÍÓÚÀÃÕÂÊÔÑÇáéíóúàãõâêôñç0123456789.,:;!?¡¿/\\()[]+-%'\"←→∞$#<> ", 1)
     Editor.lbl_tool = Label.new(SCENE_DISPLAY_WIDTH + 10, 10, {font = font, text = "[none]", scale = 2})
     Editor.lbl_dest_scene = Label.new(50, 214, {font = font, text = "1", anchor = "top_right", scale = 2})
     Editor.lbl_dest_entr = Label.new(50, 256, {font = font, text = "1", anchor = "top_right", scale = 2})
