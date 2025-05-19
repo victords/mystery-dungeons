@@ -13,10 +13,6 @@ function NisledText.new(id, col, row, args)
   setmetatable(self, NisledText)
   self.text = args[1]
   self.center = center
-
-  local width = self.font:text_width(self.text)
-  print(self.x, width, Utils.round(self.x - width / 2))
-
   return self
 end
 

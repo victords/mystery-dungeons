@@ -1,8 +1,16 @@
 Serializable = {}
 
+local function parse_value(value)
+  if value == "true" then return true
+  elseif value == "false" then return false
+  elseif value:find("^-?%d+$") then return tonumber(value)
+  else return value
+  end
+end
+
 function Serializable:serialize()
   if self.serializable_attrs == nil then
-    return ""
+    return "_"
   end
 
   local result = ""
@@ -13,7 +21,7 @@ function Serializable:serialize()
 end
 
 function Serializable:deserialize(data)
-  if self.serializable_attrs == nil then
+  if self.serializable_attrs == nil or data == nil or data == "_" then
     return
   end
 
@@ -21,13 +29,5 @@ function Serializable:deserialize(data)
   for i, value in ipairs(values) do
     local attr = self.serializable_attrs[i]
     self[attr] = parse_value(value)
-  end
-end
-
-local function parse_value(value)
-  if value == "true" then return true
-  elseif value == "false" then return false
-  elseif value:find("^-?%d+$") then return tonumber(value)
-  else return value
   end
 end

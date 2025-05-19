@@ -75,6 +75,9 @@ function Scene.new(id, editor, map_col, map_row, save_data)
           self.triggered_by[obj.triggered_by_id] = self.triggered_by[obj.triggered_by_id] or {}
           table.insert(self.triggered_by[obj.triggered_by_id], obj)
         end
+        if save_data then
+          obj:deserialize(save_data[object_id])
+        end
         object_id = object_id + 1
       end
     elseif j > 3 then

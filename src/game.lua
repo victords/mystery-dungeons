@@ -8,6 +8,18 @@ SCENE_MEMORY_THRESHOLD = 5
 Game = {
   init = function ()
     Window.set_size(false, WINDOW_WIDTH, WINDOW_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT)
+    Game.save_data = {}
+    local save_data = love.filesystem.read("save")
+    if save_data ~= nil and save_data ~= "" then
+      save_lines = Utils.split(save_data, "\r\n")
+      for _, line in ipairs(save_lines) do
+        if line ~= "" then
+          local parts = Utils.split(line, ":")
+          local scene_id = tonumber(parts[1])
+          Game.save_data[scene_id] = Utils.split(parts[2], "|")
+        end
+      end
+    end
     Game.scenes = {}
     Game.transitions = {}
     Game.set_scene(1)
@@ -19,7 +31,7 @@ Game = {
     Game.world_map = WorldMap.new(Game.scenes)
   end,
   set_scene = function(id, col, row)
-    Game.scenes[id] = Game.scenes[id] or Scene.new(id, false, col, row)
+    Game.scenes[id] = Game.scenes[id] or Scene.new(id, false, col, row, Game.save_data[id])
     Game.scene = Game.scenes[id]
     Game.scene.on_reset = Game.on_scene_reset
     Game.scene.on_trigger = Game.on_trigger
