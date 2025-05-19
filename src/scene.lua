@@ -173,7 +173,7 @@ end
 function Scene:get_save_data()
   local save_data = ""
   for _, obj in ipairs(self.objects) do
-    local obj_data = obj:get_save_data()
+    local obj_data = obj:serialize()
     if obj_data then
       save_data = save_data .. obj_data .. "|"
     end

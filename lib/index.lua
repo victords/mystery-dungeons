@@ -80,6 +80,11 @@ Res = {
 }
 
 Utils = {
+  include = function(class, module)
+    for k, v in pairs(module) do
+      class[k] = v
+    end
+  end,
   approx_equal = function (value1, value2, tolerance)
     tolerance = tolerance or 0.000001
     return math.abs(value1 - value2) <= tolerance
