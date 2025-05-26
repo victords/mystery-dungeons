@@ -51,7 +51,6 @@ function Scene.new(id, editor, map_col, map_row, save_data)
   if content == nil and editor then return self end
 
   local lines = Utils.split(content, "\r\n")
-  local object_id = 1
   for j, line in ipairs(lines) do
     if j == 1 and line ~= "_" then
       for _, e in ipairs(Utils.split(line, "|")) do
@@ -66,6 +65,7 @@ function Scene.new(id, editor, map_col, map_row, save_data)
       for _, data in ipairs(obj_data) do
         local rest = {}
         for i = 4, #data do table.insert(rest, data[i]) end
+        local object_id = #self.objects + 1
         local obj = _G[data[1]].new(object_id, tonumber(data[2]), tonumber(data[3]), rest)
         obj.class_name = data[1]
         table.insert(self.objects, obj)
@@ -79,7 +79,6 @@ function Scene.new(id, editor, map_col, map_row, save_data)
         if save_data then
           obj:deserialize(save_data[object_id])
         end
-        object_id = object_id + 1
         self.object_layers[obj.layer] = self.object_layers[obj.layer] or {}
         table.insert(self.object_layers[obj.layer], obj)
       end
@@ -177,14 +176,7 @@ function Scene:check_pushables(obj)
 end
 
 function Scene:get_save_data()
-  local save_data = ""
-  for _, obj in ipairs(self.objects) do
-    local obj_data = obj:serialize()
-    if obj_data then
-      save_data = save_data .. obj_data .. "|"
-    end
-  end
-  return save_data:sub(1, -2)
+  return Utils.map(self.objects, function (obj) return obj:serialize() end)
 end
 
 function Scene:update()

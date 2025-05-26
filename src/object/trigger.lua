@@ -6,6 +6,7 @@ function Trigger.new(id, col, row, args, offset_x, offset_y, w, h, img_path, img
   setmetatable(self, Trigger)
   self.trigger_id = args[1]
   self.trigger_on_touch = true
+  self.active = false
   return self
 end
 

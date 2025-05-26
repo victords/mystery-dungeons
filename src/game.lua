@@ -67,10 +67,11 @@ Game = {
     end
   end,
   save = function()
+    Game.save_data[Game.scene.id] = Game.scene:get_save_data()
     local file = love.filesystem.newFile("save")
     file:open("w")
     for id, scene in pairs(Game.scenes) do
-      file:write(id .. ":" .. scene:get_save_data() .. "\n")
+      file:write(id .. ":" .. Utils.join(Game.save_data[id], "|") .. "\n")
     end
     file:close()
   end,
