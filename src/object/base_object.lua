@@ -23,6 +23,7 @@ function BaseObject.new(id, col, row, args, offset_x, offset_y, w, h, img_path, 
   self.row = row
   self.args = args
   self.solid = false
+  self.layer = 1
   return self
 end
 

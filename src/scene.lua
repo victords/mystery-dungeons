@@ -38,6 +38,7 @@ function Scene.new(id, editor, map_col, map_row, save_data)
   end
   self.tileset = Res.tileset("walls", 4, 4)
   self.objects = {}
+  self.object_layers = {}
   self.solids = {}
   self.triggers = {}
   self.triggered_by = {}
@@ -79,6 +80,8 @@ function Scene.new(id, editor, map_col, map_row, save_data)
           obj:deserialize(save_data[object_id])
         end
         object_id = object_id + 1
+        self.object_layers[obj.layer] = self.object_layers[obj.layer] or {}
+        table.insert(self.object_layers[obj.layer], obj)
       end
     elseif j > 3 then
       local row = j - 3
@@ -218,7 +221,9 @@ function Scene:draw()
     end
   end
 
-  for _, obj in ipairs(self.objects) do obj:draw() end
+  for _, objs in ipairs(self.object_layers) do
+    for _, obj in ipairs(objs) do obj:draw() end
+  end
 
   if self.editor then return end
 
