@@ -26,6 +26,12 @@ end
 Scene = {}
 Scene.__index = Scene
 
+local function ensure_object_layer(scene, layer)
+  for i = 1, layer do
+    scene.object_layers[i] = scene.object_layers[i] or {}
+  end
+end
+
 function Scene.new(id, editor, map_col, map_row, save_data)
   local self = setmetatable({}, Scene)
   self.id = id
@@ -79,7 +85,7 @@ function Scene.new(id, editor, map_col, map_row, save_data)
         if save_data then
           obj:deserialize(save_data[object_id])
         end
-        self.object_layers[obj.layer] = self.object_layers[obj.layer] or {}
+        ensure_object_layer(self, obj.layer)
         table.insert(self.object_layers[obj.layer], obj)
       end
     elseif j > 3 then
