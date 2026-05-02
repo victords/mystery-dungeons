@@ -13,5 +13,7 @@ function love.update(dt)
 end
 
 function love.draw()
-  controller.draw()
+  Window.draw(function()
+    controller.draw()
+  end)
 end

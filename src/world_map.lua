@@ -44,7 +44,7 @@ end
 function WorldMap:draw()
   if not self.visible then return end
 
-  Window.draw_rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, {0, 0, 0, 0.5})
+  Window.draw_rectangle(0, 0, UI_Z_INDEX, SCREEN_WIDTH, SCREEN_HEIGHT, {0, 0, 0, 0.5})
   local max_offset = self.zoom == 1 and 4 or 9
   for i = self.current_col - max_offset, self.current_col + max_offset do
     for j = self.current_row - max_offset, self.current_row + max_offset do
@@ -56,14 +56,14 @@ function WorldMap:draw()
           for l = 1, TILES_Y, self.zoom do
             local tl = scene:is_wall(k, l) and 1 or 0
             if self.zoom == 1 then
-              if tl == 1 then Window.draw_rectangle(x + k - 1, y + l - 1, 1, 1) end
+              if tl == 1 then Window.draw_rectangle(x + k - 1, y + l - 1, UI_Z_INDEX, 1, 1) end
             else
               local tr = scene:is_wall(k + 1, l) and 1 or 0
               local bl = scene:is_wall(k, l + 1) and 1 or 0
               local br = scene:is_wall(k + 1, l + 1) and 1 or 0
               local alpha = 0.25 * (tl + tr + bl + br)
               if alpha > 0 then
-                Window.draw_rectangle(x + math.floor(k * 0.5) - 1, y + math.floor(l * 0.5) - 1, 1, 1, {1, 1, 1, alpha})
+                Window.draw_rectangle(x + math.floor(k * 0.5) - 1, y + math.floor(l * 0.5) - 1, UI_Z_INDEX, 1, 1, {1, 1, 1, alpha})
               end
             end
           end
@@ -71,7 +71,7 @@ function WorldMap:draw()
 
         if self.zoom == 1 and i == self.current_col and j == self.current_row then
           local alpha = 0.5 + 0.5 * (self.player_alpha < 0 and -self.player_alpha or self.player_alpha)
-          Window.draw_rectangle(x + self.player_pos[1], y + self.player_pos[2], 1, 1, {1, 1, 1, alpha})
+          Window.draw_rectangle(x + self.player_pos[1], y + self.player_pos[2], UI_Z_INDEX, 1, 1, {1, 1, 1, alpha})
         end
       end
     end

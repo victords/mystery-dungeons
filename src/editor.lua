@@ -19,24 +19,24 @@ function EditorScene:draw()
 
   for i = 1, TILES_X do
     for j = 1, TILES_Y do
-      if self:is_wall(i, j) then Window.draw_rectangle((i - 1) * TILE_SIZE, (j - 1) * TILE_SIZE, TILE_SIZE, TILE_SIZE, {1, 1, 0, 0.2}) end
-      if self.tiles[i][j] == -1 then Window.draw_rectangle((i - 1) * TILE_SIZE, (j - 1) * TILE_SIZE, TILE_SIZE, TILE_SIZE, {0, 1, 0, 0.2}) end
+      if self:is_wall(i, j) then Window.draw_rectangle((i - 1) * TILE_SIZE, (j - 1) * TILE_SIZE, 1, TILE_SIZE, TILE_SIZE, {1, 1, 0, 0.2}) end
+      if self.tiles[i][j] == -1 then Window.draw_rectangle((i - 1) * TILE_SIZE, (j - 1) * TILE_SIZE, 1, TILE_SIZE, TILE_SIZE, {0, 1, 0, 0.2}) end
     end
   end
 
-  love.graphics.setCanvas()
-  love.graphics.draw(self.canvas, 0, 0, nil, SCENE_SCALE, SCENE_SCALE)
+  Window.set_canvas()
+  Window.draw_canvas(self.canvas, 0, 0, 1, nil, SCENE_SCALE, SCENE_SCALE)
 
   for index, e in ipairs(self.entrances) do
     local x = (e[1] - 1) * SCENE_SCALE * TILE_SIZE
     local y = (e[2] - 1) * SCENE_SCALE * TILE_SIZE
-    Window.draw_rectangle(x, y, SCENE_SCALE * TILE_SIZE, SCENE_SCALE * TILE_SIZE, {0, 0, 1})
+    Window.draw_rectangle(x, y, 1, SCENE_SCALE * TILE_SIZE, SCENE_SCALE * TILE_SIZE, {0, 0, 1})
     Editor.font:draw_text(index, x + 2, y + 2)
   end
   for index, e in ipairs(self.exits) do
     local x = (e.col - 1) * SCENE_SCALE * TILE_SIZE
     local y = (e.row - 1) * SCENE_SCALE * TILE_SIZE
-    Window.draw_rectangle(x, y, SCENE_SCALE * TILE_SIZE, SCENE_SCALE * TILE_SIZE, {1, 0, 0})
+    Window.draw_rectangle(x, y, 1, SCENE_SCALE * TILE_SIZE, SCENE_SCALE * TILE_SIZE, {1, 0, 0})
     Editor.font:draw_text(e.dest_scene .. "," .. e.dest_entrance, x + 2, y + 2)
   end
 end
@@ -71,6 +71,8 @@ function EditorScene:add_object(col, row, class_name, args)
   local obj = _G[class_name].new(nil, col, row, Utils.split(args, ","))
   obj.class_name = class_name
   table.insert(self.objects, obj)
+  self:ensure_object_layer(obj.layer)
+  table.insert(self.object_layers[obj.layer], obj)
 end
 
 function EditorScene:delete_at(col, row)
@@ -162,7 +164,7 @@ end
 
 Editor = {
   init = function ()
-    Window.set_size(false, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT)
+    Window.init(false, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT)
     if not love.filesystem.getInfo("editor") then
       love.filesystem.createDirectory("editor")
     end
@@ -286,15 +288,14 @@ Editor = {
     Editor.mouse_pos = {col, row}
   end,
   draw = function ()
-    love.graphics.clear(0, 0, 0)
     Editor.scene:draw()
     for _, c in ipairs(Editor.controls) do c:draw() end
 
     for i = 1, TILES_X - 1 do
-      Window.draw_rectangle(i * TILE_SIZE * SCENE_SCALE, 0, 1, SCENE_DISPLAY_HEIGHT, {0, 0, 0, 0.5})
+      Window.draw_rectangle(i * TILE_SIZE * SCENE_SCALE, 0, 1, 1, SCENE_DISPLAY_HEIGHT, {0, 0, 0, 0.5})
     end
     for i = 1, TILES_Y - 1 do
-      Window.draw_rectangle(0, i * TILE_SIZE * SCENE_SCALE, SCENE_DISPLAY_WIDTH, 1, {0, 0, 0, 0.5})
+      Window.draw_rectangle(0, i * TILE_SIZE * SCENE_SCALE, 1, SCENE_DISPLAY_WIDTH, 1, {0, 0, 0, 0.5})
     end
 
     if Editor.mouse_pos then

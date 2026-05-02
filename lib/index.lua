@@ -106,21 +106,42 @@ Utils = {
     end
     return t
   end,
-  join = function(table, separator)
+  join = function(tb, separator)
     separator = separator or ""
     local result = ""
-    for i, value in ipairs(table) do
+    for i, value in ipairs(tb) do
       if i > 1 then result = result .. separator end
       result = result .. value
     end
     return result
   end,
-  map = function(table, mapper)
+  map = function(tb, mapper)
     local mapped = {}
-    for k, v in pairs(table) do
+    for k, v in pairs(tb) do
       mapped[k] = mapper(v)
     end
     return mapped
+  end,
+  select = function(tb, filter)
+    local filtered = {}
+    for _, v in ipairs(tb) do
+      if filter(v) then table.insert(filtered, v) end
+    end
+    return filtered
+  end,
+  find = function(tb, filter)
+    for _, v in ipairs(tb) do
+      if filter(v) then return v end
+    end
+    return nil
+  end,
+  remove = function(tb, element)
+    for i = #tb, 1, -1 do
+      if tb[i] == element then
+        table.remove(tb, i)
+        break
+      end
+    end
   end,
   check_anchor = function(anchor, x, y, w, h, area_w, area_h)
     area_w = area_w or Window.reference_width
@@ -146,11 +167,12 @@ Utils = {
 require("lib.audio.song")
 require("lib.audio.sound")
 
-require("lib.forms.button")
 require("lib.forms.component")
+require("lib.forms.button")
 require("lib.forms.drop_down_list")
 require("lib.forms.label")
 require("lib.forms.panel")
+require("lib.forms.progress_bar")
 require("lib.forms.text_field")
 require("lib.forms.toggle_button")
 

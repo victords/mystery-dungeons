@@ -1,22 +1,41 @@
 GameObject = setmetatable({}, Sprite)
 GameObject.__index = GameObject
+GameObject.__tostring = function(obj)
+  return "GameObject (" .. obj.x .. ", " .. obj.y .. ", " .. obj.w .. ", " .. obj.h .. ")"
+end
 
-function GameObject.new(x, y, w, h, img_path, img_gap, cols, rows, mass, max_speed)
+function GameObject.new(x, y, w, h, img_path, img_gap, cols, rows, physics_options)
   local self = Sprite.new(x, y, img_path, cols, rows)
   setmetatable(self, GameObject)
   self.w = w
   self.h = h
   self.img_gap = img_gap or Vector.new()
 
-  self.mass = mass or 1
-  self.max_speed = max_speed or Vector.new(15, 15)
-  self.speed = Vector.new()
-  self.stored_forces = Vector.new()
+  if Physics.engine == "minigl" then
+    self.mass = physics_options and physics_options.mass or 1
+    self.max_speed = physics_options and physics_options.max_speed or Vector.new(15, 15)
+    self.speed = Vector.new()
+    self.stored_forces = Vector.new()
+  elseif Physics.engine == "love" then
+    self.body_type = physics_options and physics_options.body_type or "dynamic"
+    self.body = love.physics.newBody(Physics.world, x + w / 2, y + h / 2, self.body_type)
+    self.shape_type = physics_options and physics_options.shape or "rectangle"
+    self.shape = self.shape_type == "circle" and
+      love.physics.newCircleShape(w / 2) or
+      love.physics.newRectangleShape(w, h)
+    love.physics.newFixture(self.body, self.shape)
+    if physics_options and physics_options.fixed_rotation then
+      self.body:setFixedRotation(true)
+    end
+    self.body:setUserData(self)
+  end
 
   return self
 end
 
-function GameObject:draw(scale_x, scale_y, color, angle, flip, scale_img_gap, round)
+function GameObject:draw(scale_x, scale_y, color, angle, flip, z_index, scale_img_gap, round)
+  if self.img == nil then return end
+
   scale_x = scale_x or 1
   scale_y = scale_y or 1
   if scale_img_gap == nil then scale_img_gap = true end
@@ -24,24 +43,88 @@ function GameObject:draw(scale_x, scale_y, color, angle, flip, scale_img_gap, ro
   local img_gap_scale_y = scale_img_gap and scale_y or 1
   local origin_x = 0.5 * (self.w / scale_x) - self.img_gap.x
   local origin_y = 0.5 * (self.h / scale_y) - self.img_gap.y
-  local x = self.x + img_gap_scale_x * self.img_gap.x + scale_x * origin_x
-  local y = self.y + img_gap_scale_y * self.img_gap.y + scale_y * origin_y
+  local x = Physics.engine == "minigl" and self.x or self.body:getX() - self.w / 2
+  local y = Physics.engine == "minigl" and self.y or self.body:getY() - self.h / 2
+  x = x + img_gap_scale_x * self.img_gap.x + scale_x * origin_x
+  y = y + img_gap_scale_y * self.img_gap.y + scale_y * origin_y
   if round then
     x = Utils.round(x)
     y = Utils.round(y)
   end
   local scale_x_factor = flip == "horiz" and -1 or 1
   local scale_y_factor = flip == "vert" and -1 or 1
-  if color then love.graphics.setColor(color) end
-  love.graphics.draw(self.img.source, self.quads[self.img_index], x, y, angle, scale_x_factor * scale_x, scale_y_factor * scale_y, origin_x, origin_y)
-  if color then love.graphics.setColor(1, 1, 1) end
+
+  Window.draw_image(self.img.source, x, y, z_index, color, scale_x_factor * scale_x, scale_y_factor * scale_y, angle, origin_x, origin_y, self.quads[self.img_index])
+end
+
+function GameObject:draw_shape(color, z_index)
+  if Physics.engine == "love" then
+    if self.shape_type == "circle" then
+      Window.draw_circle(self.body:getX(), self.body:getY(), z_index, self.w / 2, color)
+    else
+      Window.draw_polygon(z_index, color, "fill", self.body:getWorldPoints(self.shape:getPoints()))
+    end
+  else
+    Window.draw_rectangle(self.x, self.y, z_index, self.w, self.h, color)
+  end
 end
 
 function GameObject:bounds()
-  return Rectangle.new(self.x, self.y, self.w, self.h)
+  return Rectangle.new(self:get_x(), self:get_y(), self.w, self.h)
+end
+
+function GameObject:get_speed()
+  if Physics.engine == "love" then
+    local v_x, v_y = self.body:getLinearVelocity()
+    return Vector.new(v_x, v_y)
+  else
+    return self.speed
+  end
+end
+
+function GameObject:get_x()
+  if Physics.engine == "love" then
+    return self.body:getX() - self.w / 2
+  else
+    return self.x
+  end
+end
+
+function GameObject:get_y()
+  if Physics.engine == "love" then
+    return self.body:getY() - self.h / 2
+  else
+    return self.y
+  end
+end
+
+function GameObject:get_mass_center()
+  if Physics.engine == "love" then
+    return Vector.new(self.body:getX(), self.body:getY())
+  else
+    return Vector.new(self.x + self.w / 2, self.y + self.h / 2)
+  end
 end
 
 function GameObject:move(forces, obst, ramps, set_speed)
+  if Physics.engine == "love" then
+    if obst then
+      for _, obj in ipairs(obst) do
+        if obj.passable then
+          obj.body:setActive(self.body:getY() + self.h / 2 <= obj.y)
+        end
+      end
+    end
+
+    if set_speed then
+      self.body:setLinearVelocity(forces.x, forces.y)
+    else
+      self.body:applyForce(forces.x, forces.y)
+    end
+
+    return
+  end
+
   local speed = self.speed
   if set_speed then
     speed.x = forces.x
@@ -158,6 +241,8 @@ function GameObject:move(forces, obst, ramps, set_speed)
 end
 
 function GameObject:move_carrying(arg, scalar_speed, carried_objs, obstacles, ramps, ignore_collision)
+  if Physics.engine == "love" then return end
+
   local speed = self.speed
   local x_aim = nil
   local y_aim = nil
@@ -238,47 +323,60 @@ end
 
 function GameObject:move_free(aim, scalar_speed)
   local speed = self.speed
-  if type(aim) == "number" then
+  if type(aim) == "number" then -- aim is an angle in degrees
     local rads = aim * math.pi / 180
     speed.x = scalar_speed * math.cos(rads)
     speed.y = scalar_speed * math.sin(rads)
-    self.x = self.x + speed.x
-    self.y = self.y + speed.y
+    if Physics.engine == "love" then
+      self.body:setLinearVelocity(speed.x, speed.y)
+    else
+      self.x = self.x + speed.x
+      self.y = self.y + speed.y
+    end
   else -- aim is a Vector
-    local x_d = aim.x - self.x
-    local y_d = aim.y - self.y
-    local distance = math.sqrt(x_d^2 + y_d^2)
-
-    if distance == 0 then
-      speed.x = 0
-      speed.y = 0
+    local center = self:get_mass_center()
+    local x_d = aim.x - center.x
+    local y_d = aim.y - center.y
+    if math.abs(x_d) < Physics.epsilon and math.abs(y_d) < Physics.epsilon then
+      if Physics.engine == "love" then
+        self.body:setLinearVelocity(0, 0)
+        self.body:setX(aim.x)
+        self.body:setY(aim.y)
+      else
+        speed.x = 0
+        speed.y = 0
+        self.x = aim.x
+        self.y = aim.y
+      end
       return
     end
 
-    speed.x = x_d * scalar_speed / distance
-    speed.y = y_d * scalar_speed / distance
+    local angle = math.atan(y_d / x_d)
+    local speed_x = scalar_speed * math.cos(angle) * (x_d < 0 and -1 or 1)
+    local speed_y = scalar_speed * math.sin(angle) * (x_d < 0 and -1 or 1)
 
-    if (speed.x < 0 and self.x + speed.x <= aim.x) or (speed.x >= 0 and self.x + speed.x >= aim.x) then
-      self.x = aim.x
-      speed.x = 0
+    if Physics.engine == "love" then
+      local frame_speed_x = speed_x / 60
+      local frame_speed_y = speed_y / 60
+      if math.abs(x_d) < math.abs(frame_speed_x) then
+        speed_x = x_d * 60
+        speed_y = y_d * 60
+      end
+      self.body:setLinearVelocity(speed_x, speed_y)
     else
+      speed.x = math.abs(x_d) < math.abs(speed_x) and x_d or speed_x
+      speed.y = math.abs(y_d) < math.abs(speed_y) and y_d or speed_y
       self.x = self.x + speed.x
-    end
-
-    if (speed.y < 0 and self.y + speed.y <= aim.y) or (speed.y >= 0 and self.y + speed.y >= aim.y) then
-      self.y = aim.y
-      speed.y = 0
-    else
       self.y = self.y + speed.y
     end
   end
 end
 
-function GameObject:cycle(points, scalar_speed, carried_objs, obstacles, ramps, stop_time)
+function GameObject:cycle(points, scalar_speed, stop_time, carried_objs, obstacles, ramps)
   stop_time = stop_time or 0
   if not self.cycle_setup then
     self.cur_point = self.cur_point or 1
-    if carried_objs then
+    if carried_objs and Physics.engine == "minigl" then
       obstacles = obstacles or {}
       ramps = ramps or {}
       self:move_carrying(points[self.cur_point], scalar_speed, carried_objs, obstacles, ramps)
@@ -286,7 +384,9 @@ function GameObject:cycle(points, scalar_speed, carried_objs, obstacles, ramps, 
       self:move_free(points[self.cur_point], scalar_speed)
     end
   end
-  if self.speed.x == 0 and self.speed.y == 0 then
+
+  local speed = self:get_speed()
+  if speed.x == 0 and speed.y == 0 then
     if not self.cycle_setup then
       self.cycle_timer = 0
       self.cycle_setup = true
@@ -304,10 +404,40 @@ function GameObject:cycle(points, scalar_speed, carried_objs, obstacles, ramps, 
   end
 end
 
+function GameObject:set_contacts(obj, normal_x, normal_y)
+  if normal_x < 0 then
+    self.left = obj
+  elseif normal_x > 0 then
+    self.right = obj
+  end
+  if normal_y < 0 then
+    self.top = obj
+  elseif normal_y > 0 then
+    self.bottom = obj
+  end
+end
+
+function GameObject:clear_contacts(obj)
+  if self.left == obj then self.left = nil end
+  if self.right == obj then self.right = nil end
+  if self.top == obj then self.top = nil end
+  if self.bottom == obj then self.bottom = nil end
+end
+
+function GameObject:is_in_contact_with(obj)
+  return self.left == obj or self.right == obj or self.top == obj or self.bottom == obj
+end
+
+function GameObject:clean()
+  if self.body then
+    self.body:destroy()
+  end
+end
+
 -- private
 function GameObject:check_contact(obst, ramps)
   local prev_bottom = self.bottom
-  self.top = nil; self.bottom = nil; self.left = nil; self.right = nil
+  self.left = nil; self.right = nil; self.top = nil; self.bottom = nil
   for _, o in ipairs(obst) do
     local x2 = self.x + self.w
     local y2 = self.y + self.h

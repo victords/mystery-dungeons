@@ -7,7 +7,7 @@ SCENE_MEMORY_THRESHOLD = 5
 
 Game = {
   init = function ()
-    Window.set_size(false, WINDOW_WIDTH, WINDOW_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT)
+    Window.init(false, WINDOW_WIDTH, WINDOW_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT)
     Game.save_data = {}
     local save_data = love.filesystem.read("save")
     if save_data ~= nil and save_data ~= "" then
@@ -87,10 +87,8 @@ Game = {
   draw = function ()
     if Game.transitioning then return end
 
-    Window.draw(function ()
-      Game.scene:draw()
-      Game.player:draw()
-      Game.world_map:draw()
-    end)
+    Game.scene:draw()
+    Game.player:draw()
+    Game.world_map:draw()
   end
 }

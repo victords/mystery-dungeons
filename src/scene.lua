@@ -26,12 +26,6 @@ end
 Scene = {}
 Scene.__index = Scene
 
-local function ensure_object_layer(scene, layer)
-  for i = 1, layer do
-    scene.object_layers[i] = scene.object_layers[i] or {}
-  end
-end
-
 function Scene.new(id, editor, map_col, map_row, save_data)
   local self = setmetatable({}, Scene)
   self.id = id
@@ -85,7 +79,7 @@ function Scene.new(id, editor, map_col, map_row, save_data)
         if save_data then
           obj:deserialize(save_data[object_id])
         end
-        ensure_object_layer(self, obj.layer)
+        self:ensure_object_layer(obj.layer)
         table.insert(self.object_layers[obj.layer], obj)
       end
     elseif j > 3 then
@@ -196,7 +190,7 @@ function Scene:update()
 end
 
 function Scene:draw()
-  love.graphics.setCanvas(self.canvas)
+  Window.set_canvas(self.canvas)
   love.graphics.clear(BG_COLOR)
 
   for i = 1, TILES_X do
@@ -214,7 +208,7 @@ function Scene:draw()
       local bl = i == 1 or j == TILES_Y + 1 or self.tiles[i - 1][j]
       local br = i == TILES_X + 1 or j == TILES_Y + 1 or self.tiles[i][j]
       if tl and tr and bl and br then
-        Window.draw_rectangle((i - 1.5) * TILE_SIZE, (j - 1.5) * TILE_SIZE, TILE_SIZE, TILE_SIZE, BG_COLOR)
+        Window.draw_rectangle((i - 1.5) * TILE_SIZE, (j - 1.5) * TILE_SIZE, 1, TILE_SIZE, TILE_SIZE, BG_COLOR)
       end
     end
   end
@@ -225,14 +219,19 @@ function Scene:draw()
 
   if self.editor then return end
 
-  love.graphics.setCanvas(Window.canvas)
   if self.shader then
     self.shader:send("light_sources", unpack(self.lights))
     self.shader:send("light_source_count", #self.lights)
-    love.graphics.setShader(self.shader)
   end
-  love.graphics.draw(self.canvas, 0, 0)
-  if self.shader then love.graphics.setShader() end
+
+  Window.set_canvas()
+  Window.draw_canvas(self.canvas, 0, 0, 1, nil, 1, 1, self.shader)
+end
+
+function Scene:ensure_object_layer(layer)
+  for i = 1, layer do
+    self.object_layers[i] = self.object_layers[i] or {}
+  end
 end
 
 function Scene:is_wall(i, j)

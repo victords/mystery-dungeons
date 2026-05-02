@@ -1,11 +1,35 @@
-Window = {}
-Window.__index = Window
+Window = {
+  toggle_handlers = {}
+}
 
-function Window.set_size(fullscreen, width, height, reference_width, reference_height)
+local function add_to_layer(z, args)
+  z = z or 1
+  if Window.layers[z] == nil then
+    Window.layers[z] = {}
+  end
+  table.insert(Window.layers[z], args)
+end
+
+local function draw(args)
+  local func = args[1]
+  local color = args[2]
+  local args_index = 3
+  if func == "draw_canvas" then
+    func = "draw"
+    love.graphics.setShader(args[3])
+    args_index = 4
+  end
+  if color then love.graphics.setColor(color) end
+  love.graphics[func](unpack(args, args_index))
+  if color then love.graphics.setColor(1, 1, 1) end
+  if args_index == 4 then love.graphics.setShader() end
+end
+
+function Window.init(fullscreen, width, height, reference_width, reference_height, is_update)
   width = width or 1280
   height = height or 720
-  reference_width = reference_width or 1920
-  reference_height = reference_height or 1080
+  reference_width = reference_width or 1280
+  reference_height = reference_height or 720
 
   Window.width = width
   Window.height = height
@@ -45,12 +69,30 @@ function Window.set_size(fullscreen, width, height, reference_width, reference_h
     end
   end
 
-  love.window.setMode(screen_width, screen_height, { fullscreen = fullscreen })
+  local method = is_update and "updateMode" or "setMode"
+  love.window[method](screen_width, screen_height, { fullscreen = fullscreen })
 end
 
 function Window.toggle_fullscreen()
   local currently_fullscreen = love.window.getFullscreen()
-  Window.set_size(not currently_fullscreen, Window.width, Window.height, Window.reference_width, Window.reference_height)
+  Window.init(not currently_fullscreen, Window.width, Window.height, Window.reference_width, Window.reference_height, true)
+
+  for _, handler in ipairs(Window.toggle_handlers) do
+    if handler[2] then
+      handler[1](handler[2])
+    else
+      handler[1]()
+    end
+  end
+end
+
+function Window.on_toggle(handler, obj)
+  table.insert(Window.toggle_handlers, {handler, obj})
+end
+
+function Window.set_canvas(canvas)
+  Window.custom_canvas = canvas
+  love.graphics.setCanvas(canvas or Window.canvas)
 end
 
 function Window.set_shader(path)
@@ -60,12 +102,59 @@ function Window.set_shader(path)
   end
 end
 
-function Window.draw_rectangle(x, y, w, h, color, mode)
-  color = color or {1, 1, 1}
+function Window.draw_rectangle(x, y, z, w, h, color, mode)
   mode = mode or "fill"
-  love.graphics.setColor(color)
-  love.graphics.rectangle(mode, x, y, w, h)
-  love.graphics.setColor(1, 1, 1)
+  local args = {"rectangle", color, mode, x, y, w, h}
+  if Window.custom_canvas then
+    draw(args)
+  else
+    add_to_layer(z, args)
+  end
+end
+
+function Window.draw_polygon(z, color, mode, ...)
+  mode = mode or "fill"
+  local args = {"polygon", color, mode, ...}
+  if Window.custom_canvas then
+    draw(args)
+  else
+    add_to_layer(z, args)
+  end
+end
+
+function Window.draw_circle(x, y, z, radius, color, mode)
+  mode = mode or "fill"
+  local args = {"circle", color, mode, x, y, radius}
+  if Window.custom_canvas then
+    draw(args)
+  else
+    add_to_layer(z, args)
+  end
+end
+
+function Window.draw_image(image, x, y, z, color, scale_x, scale_y, angle, origin_x, origin_y, quad)
+  color = color or {1, 1, 1}
+  local args = quad and
+    {"draw", color, image, quad, x, y, angle, scale_x, scale_y, origin_x, origin_y} or
+    {"draw", color, image, x, y, angle, scale_x, scale_y, origin_x, origin_y}
+  if Window.custom_canvas then
+    draw(args)
+  else
+    add_to_layer(z, args)
+  end
+end
+
+function Window.draw_text(text, font, x, y, z, color, scale_x, scale_y, angle, origin_x, origin_y)
+  local args = {"print", color, text, font, x, y, angle, scale_x, scale_y, origin_x, origin_y}
+  if Window.custom_canvas then
+    draw(args)
+  else
+    add_to_layer(z, args)
+  end
+end
+
+function Window.draw_canvas(canvas, x, y, z, color, scale_x, scale_y, shader)
+  add_to_layer(z, {"draw_canvas", color, shader, canvas, x, y, nil, scale_x, scale_y})
 end
 
 function Window.draw(draw_code)
@@ -74,7 +163,21 @@ function Window.draw(draw_code)
     love.graphics.clear()
   end
 
+  Window.layers = {}
   draw_code()
+
+  local indexes = {}
+  for index in pairs(Window.layers) do
+    table.insert(indexes, index)
+  end
+  table.sort(indexes)
+
+  for _, index in ipairs(indexes) do
+    layer = Window.layers[index]
+    for _, args in ipairs(layer) do
+      draw(args)
+    end
+  end
 
   if Window.canvas then
     if Window.shader then love.graphics.setShader(Window.shader) end
