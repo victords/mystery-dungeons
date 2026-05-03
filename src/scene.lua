@@ -36,7 +36,7 @@ function Scene.new(id, editor, map_col, map_row, save_data)
   for i = 1, TILES_X do
     self.tiles[i] = {}
   end
-  self.tileset = Res.tileset("walls", 4, 4)
+  self.tileset = Res.tileset("walls2", 4, 4)
   self.objects = {}
   self.object_layers = {}
   self.solids = {}
@@ -99,10 +99,12 @@ function Scene.new(id, editor, map_col, map_row, save_data)
     end
   end
 
+  self.bg_color = {0.6, 1, 0.6}
+  self.wall_top_color = {0.7569, 0.443, 0}
   self.canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
-  if not editor then
-    self.shader = Res.shader("main")
-  end
+--  if not editor then
+--    self.shader = Res.shader("main")
+--  end
 
   return self
 end
@@ -191,7 +193,7 @@ end
 
 function Scene:draw()
   Window.set_canvas(self.canvas)
-  love.graphics.clear(BG_COLOR)
+  love.graphics.clear(self.bg_color)
 
   for i = 1, TILES_X do
     for j = 1, TILES_Y do
@@ -208,7 +210,7 @@ function Scene:draw()
       local bl = i == 1 or j == TILES_Y + 1 or self.tiles[i - 1][j]
       local br = i == TILES_X + 1 or j == TILES_Y + 1 or self.tiles[i][j]
       if tl and tr and bl and br then
-        Window.draw_rectangle((i - 1.5) * TILE_SIZE, (j - 1.5) * TILE_SIZE, 1, TILE_SIZE, TILE_SIZE, BG_COLOR)
+        Window.draw_rectangle((i - 1.5) * TILE_SIZE, (j - 1.5) * TILE_SIZE, 1, TILE_SIZE, TILE_SIZE, self.wall_top_color)
       end
     end
   end
