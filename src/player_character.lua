@@ -2,7 +2,7 @@ PlayerCharacter = setmetatable({}, GameObject)
 PlayerCharacter.__index = PlayerCharacter
 
 function PlayerCharacter.new()
-  local self = GameObject.new(0, 0, 6, 6, "char", Vector.new(-1, -1))
+  local self = GameObject.new(0, 0, 10, 10, "char", Vector.new(-1, -1))
   setmetatable(self, PlayerCharacter)
   self.angle = 0
   return self

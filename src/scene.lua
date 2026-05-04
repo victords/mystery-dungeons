@@ -36,7 +36,6 @@ function Scene.new(id, editor, map_col, map_row, save_data)
   for i = 1, TILES_X do
     self.tiles[i] = {}
   end
-  self.tileset = Res.tileset("walls2", 4, 4)
   self.objects = {}
   self.object_layers = {}
   self.solids = {}
@@ -52,15 +51,17 @@ function Scene.new(id, editor, map_col, map_row, save_data)
 
   local lines = Utils.split(content, "\r\n")
   for j, line in ipairs(lines) do
-    if j == 1 and line ~= "_" then
+    if j == 1 then
+      self.tileset_index = tonumber(line)
+    elseif j == 2 and line ~= "_" then
       for _, e in ipairs(Utils.split(line, "|")) do
         table.insert(self.entrances, Utils.map(Utils.split(e, ","), tonumber))
       end
-    elseif j == 2 and line ~= "_" then
+    elseif j == 3 and line ~= "_" then
       for _, e in ipairs(Utils.split(line, "|")) do
         table.insert(self.exits, Exit.new(Utils.map(Utils.split(e, ","), tonumber)))
       end
-    elseif j == 3 and line ~= "_" then
+    elseif j == 4 and line ~= "_" then
       obj_data = Utils.map(Utils.split(line, "|"), function (o) return Utils.split(o, ",") end)
       for _, data in ipairs(obj_data) do
         local rest = {}
@@ -82,8 +83,8 @@ function Scene.new(id, editor, map_col, map_row, save_data)
         self:ensure_object_layer(obj.layer)
         table.insert(self.object_layers[obj.layer], obj)
       end
-    elseif j > 3 then
-      local row = j - 3
+    elseif j > 4 then
+      local row = j - 4
       for col = 1, #line do
         local char = line:sub(col, col)
         if char ~= "_" then
@@ -99,8 +100,10 @@ function Scene.new(id, editor, map_col, map_row, save_data)
     end
   end
 
+  self.tileset = Res.tileset("tileset/" .. self.tileset_index, 4, 4)
   self.bg_color = {0.6, 1, 0.6}
-  self.wall_top_color = {0.7569, 0.443, 0}
+  self.wall_top_color = WALL_TOP_COLORS[self.tileset_index]
+  self.wall_top_offset = WALL_TOP_OFFSETS[self.tileset_index]
   self.canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
 --  if not editor then
 --    self.shader = Res.shader("main")
@@ -210,7 +213,7 @@ function Scene:draw()
       local bl = i == 1 or j == TILES_Y + 1 or self.tiles[i - 1][j]
       local br = i == TILES_X + 1 or j == TILES_Y + 1 or self.tiles[i][j]
       if tl and tr and bl and br then
-        Window.draw_rectangle((i - 1.5) * TILE_SIZE, (j - 1.5) * TILE_SIZE, 1, TILE_SIZE, TILE_SIZE, self.wall_top_color)
+        Window.draw_rectangle((i - 1.5) * TILE_SIZE + self.wall_top_offset[1], (j - 1.5) * TILE_SIZE + self.wall_top_offset[2], 1, TILE_SIZE, TILE_SIZE, self.wall_top_color)
       end
     end
   end
