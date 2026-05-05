@@ -2,11 +2,11 @@ Gate = setmetatable({}, BaseObject)
 Gate.__index = Gate
 
 function Gate.new(id, col, row, args)
-  local self = BaseObject.new(id, col, row, args, 0, 0, TILE_SIZE, TILE_SIZE, "object/gate", Vector.new(), 2, 2)
+  local self = BaseObject.new(id, col, row, args, 0, 0, TILE_SIZE, TILE_SIZE, "object/gate" .. args[1], Vector.new(-1, -1), 4, 1)
   setmetatable(self, Gate)
-  self.triggered_by_id = args[1]
-  self.vertical = args[2] == nil or not args[2]:find("h")
-  self.solid = args[2] == nil or not args[2]:find("o")
+  self.triggered_by_id = args[2]
+  self.vertical = args[3] == nil or not args[3]:find("h")
+  self.solid = args[3] == nil or not args[3]:find("o")
   self.serializable_attrs = {"solid", "img_index"}
   if not self.solid then self.img_index = 4 end
   return self
