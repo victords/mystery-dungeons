@@ -101,7 +101,7 @@ function Scene.new(id, editor, map_col, map_row, save_data)
   end
 
   self.tileset = Res.tileset("tileset/" .. self.tileset_index, 4, 4)
-  self.bg_color = {0.6, 1, 0.6}
+  self.bg_color = {0.498, 0.498, 0.498}
   self.wall_top_color = WALL_TOP_COLORS[self.tileset_index]
   self.wall_top_offset = WALL_TOP_OFFSETS[self.tileset_index]
   self.canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)

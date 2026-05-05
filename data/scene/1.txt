@@ -1,7 +1,7 @@
 1
 5,9|19,8
 20,8,2,1
-Box,13,9,|HardSwitch,16,9,1|HardSwitch,20,4,2|Gate,19,8,1|SavePad,13,4,|Lantern,9,4,
+Box,13,9,2|HardSwitch,16,9,1|HardSwitch,20,4,2|Gate,19,8,1|SavePad,13,4,|Lantern,9,4,
 /////////###########
 /////////#__________
 /////////#__________

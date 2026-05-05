@@ -9,8 +9,8 @@ function PlayerCharacter.new()
 end
 
 function PlayerCharacter:set_position(col, row)
-  self.x = (col - 1) * TILE_SIZE + 2
-  self.y = (row - 1) * TILE_SIZE + 2
+  self.x = (col - 1) * TILE_SIZE + 3
+  self.y = (row - 1) * TILE_SIZE + 3
 end
 
 function PlayerCharacter:update(scene)
