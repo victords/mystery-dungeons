@@ -2,7 +2,7 @@ Lever = setmetatable({}, Trigger)
 Lever.__index = Lever
 
 function Lever.new(id, col, row, args)
-  local self = Trigger.new(id, col, row, args, 2, 0, 8, 10, "object/lever", nil, 2, 1)
+  local self = Trigger.new(id, col, row, args, 4, 0, 9, 12, "object/lever" .. (args[2] or "1"), nil, 2, 1)
   setmetatable(self, Lever)
   self.trigger_on_touch = false
   self.trigger_key = "space"

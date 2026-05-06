@@ -1,7 +1,7 @@
 uniform vec2 image_size;
 uniform vec3 light_color = vec3(1, 1, 1);
-uniform float light_min_radius = 10.0;
-uniform float light_max_radius = 12.0;
+uniform float light_min_radius = 16.0;
+uniform float light_max_radius = 20.0;
 uniform float light_min_alpha = 0.6;
 uniform float light_max_alpha = 0.8;
 uniform float time = 0.0;
